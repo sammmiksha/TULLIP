@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TULLIP</string>
+    <string name="title_activity_main">TULLIP</string>
+    <string name="package_name">com.tullip.journal</string>
+    <string name="custom_url_scheme">com.tullip.journal</string>
+</resources>
