@@ -27,7 +27,7 @@
 - [x] Phase 5: categories, payment methods, budgets — PASS (budget calculation coverage and production build passed)
 - [x] Phase 6: wishlist and savings goals — PASS (savings-progress coverage and production build passed)
 - [x] Phase 7: local receipt attachments — PASS (receipt storage paths and credential/data exclusions verified; tests and production build passed)
-- [ ] Phase 8: reports and PDF/CSV export
+- [x] Phase 8: reports and PDF/CSV export — PASS (CSV escaping and non-mutating export coverage passed; production build passed)
 - [ ] Phase 9: settings, backup and restore
 - [ ] Phase 10: Capacitor Android integration and APK packaging
 - [ ] Phase 11: test and fix

@@ -7,7 +7,7 @@ export function csvForTransactions(transactions: Transaction[], categories: Cate
   const methodName = new Map(methods.map((method) => [method.id, method.name]));
   const quote = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
   const header = ['Transaction date', 'Transaction type', 'Amount', 'Currency', 'Category', 'Payment method', 'Description', 'Merchant'];
-  const rows = transactions.sort((a, b) => a.date.localeCompare(b.date)).map((transaction) => [
+  const rows = [...transactions].sort((a, b) => a.date.localeCompare(b.date)).map((transaction) => [
     transaction.date, transaction.type, (transaction.amountMinor / 100).toFixed(2), transaction.currency,
     categoryName.get(transaction.categoryId) ?? 'Unknown', methodName.get(transaction.paymentMethodId) ?? 'Unknown', transaction.description, transaction.merchant ?? ''
   ]);
