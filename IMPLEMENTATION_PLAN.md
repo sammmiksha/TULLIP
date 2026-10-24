@@ -26,7 +26,7 @@
 - [x] Phase 4: interactive calendar — PASS (calendar domain coverage and production build passed)
 - [x] Phase 5: categories, payment methods, budgets — PASS (budget calculation coverage and production build passed)
 - [x] Phase 6: wishlist and savings goals — PASS (savings-progress coverage and production build passed)
-- [ ] Phase 7: local receipt attachments
+- [x] Phase 7: local receipt attachments — PASS (receipt storage paths and credential/data exclusions verified; tests and production build passed)
 - [ ] Phase 8: reports and PDF/CSV export
 - [ ] Phase 9: settings, backup and restore
 - [ ] Phase 10: Capacitor Android integration and APK packaging
