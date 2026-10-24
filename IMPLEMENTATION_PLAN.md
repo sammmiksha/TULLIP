@@ -23,7 +23,7 @@
 - [x] Phase 1: tokens, visual system, responsive navigation — PASS (automated tests and production build passed)
 - [x] Phase 2: persistence, migrations, financial domain tests — PASS (financial tests and production build passed)
 - [x] Phase 3: dashboard and transaction management — PASS (automated tests and production build passed)
-- [ ] Phase 4: interactive calendar
+- [x] Phase 4: interactive calendar — PASS (calendar domain coverage and production build passed)
 - [ ] Phase 5: categories, payment methods, budgets
 - [ ] Phase 6: wishlist and savings goals
 - [ ] Phase 7: local receipt attachments
