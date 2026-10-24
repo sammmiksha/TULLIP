@@ -148,11 +148,19 @@ function nativeValues(name: EntityName, item: EntityMap[EntityName] & Timestampe
   return [...generic, ...fields[name].map(([column, key]) => ({ column, value: source[key] ?? null })), { column: 'updated_at', value: item.updatedAt }];
 }
 
-async function mergeInto(repository: Repository, backup: BackupFile): Promise<{ imported: number; skipped: number }> {
+export async function mergeInto(repository: Repository, backup: BackupFile): Promise<{ imported: number; skipped: number }> {
   validateBackup(backup); let imported = 0; let skipped = 0;
   for (const name of ENTITY_NAMES) {
     const existing = new Set((await repository.list(name)).map((item) => item.id));
-    for (const item of backup.data[name]) { if (existing.has(item.id)) { skipped++; } else { await repository.put(name, item); imported++; } }
+    for (const item of backup.data[name]) {
+      if (existing.has(item.id)) {
+        skipped++;
+      } else {
+        await repository.put(name, item);
+        existing.add(item.id);
+        imported++;
+      }
+    }
   }
   // Settings are deliberately not restored silently. Existing settings remain in place.
   return { imported, skipped };
@@ -162,6 +170,19 @@ export function validateBackup(value: unknown): asserts value is BackupFile {
   const backup = value as Partial<BackupFile>;
   if (backup?.app !== 'TULLIP' || backup.schemaVersion !== 1 || !backup.data || typeof backup.data !== 'object') throw new Error('This is not a supported TULLIP backup. No data was changed.');
   for (const name of ENTITY_NAMES) if (!Array.isArray((backup.data as Partial<TullipSnapshot>)[name])) throw new Error(`Backup is missing ${name}. No data was changed.`);
+  if (!backup.data.settings || typeof backup.data.settings !== 'object') throw new Error('Backup is missing settings. No data was changed.');
+
+  const minorFields: Partial<Record<EntityName | 'settings', string>> = {
+    transactions: 'amountMinor', budgets: 'amountMinor', wishlistItems: 'targetMinor', savingsContributions: 'amountMinor', settings: 'openingBalanceMinor'
+  };
+  for (const name of [...ENTITY_NAMES, 'settings'] as const) {
+    const records = name === 'settings' ? [backup.data.settings] : backup.data[name];
+    for (const record of records) {
+      if (!record || typeof record !== 'object' || typeof (record as { id?: unknown }).id !== 'string') throw new Error(`Backup has an invalid ${name} record. No data was changed.`);
+      const field = minorFields[name];
+      if (field && !Number.isSafeInteger((record as unknown as Record<string, unknown>)[field])) throw new Error(`Backup has a non-integer ${field}. No data was changed.`);
+    }
+  }
 }
 
 let singleton: Repository | undefined;

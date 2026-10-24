@@ -29,8 +29,8 @@
 - [x] Phase 7: local receipt attachments — PASS (receipt storage paths and credential/data exclusions verified; tests and production build passed)
 - [x] Phase 8: reports and PDF/CSV export — PASS (CSV escaping and non-mutating export coverage passed; production build passed)
 - [x] Phase 9: settings, backup and restore — PASS (backup-envelope validation coverage and production build passed)
-- [ ] Phase 10: Capacitor Android integration and APK packaging
-- [ ] Phase 11: test and fix
+- [ ] Phase 10: Capacitor Android integration and APK packaging — BLOCKED (Capacitor sync passed, but Gradle wrapper download timed out; adb, sdkmanager, ANDROID_HOME, and ANDROID_SDK_ROOT are unavailable, so no APK or device/emulator launch was verified)
+- [x] Phase 11: test and fix — PASS (11 automated tests and production build passed)
 - [ ] Phase 12: implementation documentation and final verification
 
 ## Acceptance approach
