@@ -21,7 +21,7 @@
 
 - [x] Phase 0: audit and plan
 - [x] Phase 1: tokens, visual system, responsive navigation — PASS (automated tests and production build passed)
-- [ ] Phase 2: persistence, migrations, financial domain tests
+- [x] Phase 2: persistence, migrations, financial domain tests — PASS (financial tests and production build passed)
 - [ ] Phase 3: dashboard and transaction management
 - [ ] Phase 4: interactive calendar
 - [ ] Phase 5: categories, payment methods, budgets
