@@ -1,5 +1,6 @@
 # Dependencies and build output
 node_modules/
+.local-tools/
 dist/
 coverage/
 *.log
@@ -26,6 +27,10 @@ receipts/
 *.sqlite3
 *.db
 *.backup
+tullip-backup-*.json
+tullip-statement-*.pdf
+tullip-????-??.csv
+*.hprof
 *.zip
 .env
 .env.*

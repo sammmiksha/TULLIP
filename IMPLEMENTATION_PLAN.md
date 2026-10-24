@@ -29,10 +29,37 @@
 - [x] Phase 7: local receipt attachments — PASS (receipt storage paths and credential/data exclusions verified; tests and production build passed)
 - [x] Phase 8: reports and PDF/CSV export — PASS (CSV escaping and non-mutating export coverage passed; production build passed)
 - [x] Phase 9: settings, backup and restore — PASS (backup-envelope validation coverage and production build passed)
-- [ ] Phase 10: Capacitor Android integration and APK packaging — BLOCKED (Capacitor sync passed, but Gradle wrapper download timed out; adb, sdkmanager, ANDROID_HOME, and ANDROID_SDK_ROOT are unavailable, so no APK or device/emulator launch was verified)
+- [x] Phase 10: Capacitor Android integration and APK packaging — PASS (SDK debug build, APK installation, and two offline Android 16 emulator smoke tests passed; dashboard rendering and native SQLite creation verified)
 - [x] Phase 11: test and fix — PASS (11 automated tests and production build passed)
 - [x] Phase 12: implementation documentation and final verification — PASS (11 automated tests and production build passed)
 
 ## Acceptance approach
 
 The automated suite covers money arithmetic, date-scoped reports, deletion effects, budget progress, CSV escaping, savings progress, and calendar generation. The production web build is run before Android sync. Android APK installation is reported only after an SDK build and device/emulator launch actually succeed.
+
+## Android verification — 24 October 2026
+
+The SDK, platform tools, emulator, and an Android 16 AVD were found outside
+PATH. Android API 36 and Build Tools 35.0.0 were installed using the existing
+accepted SDK license. JDK 21 and the project's exact Gradle 8.14.3 distribution
+were downloaded from official sources and checksum-verified; local tooling,
+logs, screenshots, and generated APKs remain ignored by Git.
+
+- PASS: `npm test` — 11 tests.
+- PASS: `npm run build` and Capacitor Android sync.
+- PASS: Gradle `assembleDebug :app:testDebugUnitTest` with JDK 21 and one worker.
+- PASS: wrapper `:app:assembleDebugAndroidTest`.
+- PASS: `Test-Path android/app/build/outputs/apk/debug/app-debug.apk`.
+- PASS: APK metadata identifies `com.tullip.journal`, label TULLIP, minimum API 24,
+  target API 36, and all four native ABIs.
+- PASS: app and test APK installation on the Android 16 emulator.
+- PASS: offline instrumentation run — `OK (2 tests)`, covering dashboard load,
+  native SQLite database creation, application ID, and disabled system backup.
+
+The first concurrent build/emulator attempt exhausted host memory. Packaging
+then passed with a 768 MB Gradle heap and one worker, followed by a separate
+emulator run. The initial instrumentation process hit the emulator's system
+startup timeout; after temporarily disabling busy Google background packages
+inside the read-only AVD, the retry passed both tests. The AVD's saved state
+was not changed. This is debug-APK smoke verification on one emulator, not a
+physical-device or full Android regression test matrix.
