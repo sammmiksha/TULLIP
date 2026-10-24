@@ -55,11 +55,15 @@ logs, screenshots, and generated APKs remain ignored by Git.
 - PASS: app and test APK installation on the Android 16 emulator.
 - PASS: offline instrumentation run — `OK (2 tests)`, covering dashboard load,
   native SQLite database creation, application ID, and disabled system backup.
+- NOT VERIFIED: uninterrupted manual UI use. The resource-constrained emulator
+  continued showing Android System UI and launcher ANR dialogs while TULLIP's
+  dashboard was rendered; the automated launch/database checks still passed.
 
 The first concurrent build/emulator attempt exhausted host memory. Packaging
 then passed with a 768 MB Gradle heap and one worker, followed by a separate
 emulator run. The initial instrumentation process hit the emulator's system
 startup timeout; after temporarily disabling busy Google background packages
 inside the read-only AVD, the retry passed both tests. The AVD's saved state
-was not changed. This is debug-APK smoke verification on one emulator, not a
-physical-device or full Android regression test matrix.
+was not changed, and the temporary emulator was shut down after verification.
+This is debug-APK smoke verification on one emulator, not a physical-device or
+full Android regression test matrix.

@@ -114,5 +114,7 @@ committed to Git.
 The low-memory test environment required separate build/emulator runs and
 temporarily disabling busy Google background packages inside a read-only
 AVD. Its saved state was preserved. Physical-device testing and a full Android
-regression matrix have not been performed. See `IMPLEMENTATION_PLAN.md` for
-the verification details and phase checklist.
+regression matrix have not been performed. Android System UI/launcher ANR
+dialogs continued in that constrained emulator, so uninterrupted manual UI
+stability remains NOT VERIFIED despite the passing launch/database tests.
+See `IMPLEMENTATION_PLAN.md` for the verification details and phase checklist.
