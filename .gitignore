@@ -1,9 +1,38 @@
+# Dependencies and build output
 node_modules/
 dist/
+coverage/
+*.log
+
+# Capacitor / Android generated and local files
 android/.gradle/
 android/build/
 android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+*.apk
+*.aab
+
+# Local application data, sensitive backups, and receipts
+receipts/
+*.receipt
 *.keystore
 *.jks
-local.properties
-receipts/
+*.p12
+*.pfx
+*.pem
+*.key
+*.sqlite
+*.sqlite3
+*.db
+*.backup
+*.zip
+.env
+.env.*
+!.env.example
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

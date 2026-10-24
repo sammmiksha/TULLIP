@@ -20,7 +20,7 @@
 ## Delivery checklist
 
 - [x] Phase 0: audit and plan
-- [ ] Phase 1: tokens, visual system, responsive navigation
+- [x] Phase 1: tokens, visual system, responsive navigation — PASS (automated tests and production build passed)
 - [ ] Phase 2: persistence, migrations, financial domain tests
 - [ ] Phase 3: dashboard and transaction management
 - [ ] Phase 4: interactive calendar
