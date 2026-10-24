@@ -24,7 +24,7 @@
 - [x] Phase 2: persistence, migrations, financial domain tests — PASS (financial tests and production build passed)
 - [x] Phase 3: dashboard and transaction management — PASS (automated tests and production build passed)
 - [x] Phase 4: interactive calendar — PASS (calendar domain coverage and production build passed)
-- [ ] Phase 5: categories, payment methods, budgets
+- [x] Phase 5: categories, payment methods, budgets — PASS (budget calculation coverage and production build passed)
 - [ ] Phase 6: wishlist and savings goals
 - [ ] Phase 7: local receipt attachments
 - [ ] Phase 8: reports and PDF/CSV export
