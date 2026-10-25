@@ -30,6 +30,7 @@ receipts/
 tullip-backup-*.json
 tullip-statement-*.pdf
 tullip-????-??.csv
+tullip-savings-*.csv
 *.hprof
 *.zip
 .env

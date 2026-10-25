@@ -1,4 +1,6 @@
 import type { Budget, Category, PaymentMethod, SavingsContribution, Transaction, WishlistItem } from './types';
+import { activeTransactions, savingsEffect } from './ledger';
+export { accountBalances, financialSummary, allocatedByAccount, activeTransactions } from './ledger';
 
 export interface PeriodTotals { incomeMinor: number; expenseMinor: number; netMinor: number; transactionCount: number; }
 
@@ -9,12 +11,12 @@ export const dateKey = (date = new Date()): string => {
 
 export const monthKey = (date = new Date()): string => dateKey(date).slice(0, 7);
 export const isInMonth = (date: string, month: string) => date.startsWith(month);
-export const includedTransactions = (transactions: Transaction[]) => transactions.filter((t) => t.type !== 'transfer');
+export const includedTransactions = (transactions: Transaction[]) => activeTransactions(transactions).filter((t) => t.type !== 'transfer');
 
 export function totalsFor(transactions: Transaction[]): PeriodTotals {
   const included = includedTransactions(transactions);
-  const incomeMinor = included.filter((t) => t.type === 'income').reduce((total, t) => total + t.amountMinor, 0);
-  const expenseMinor = included.filter((t) => t.type === 'expense').reduce((total, t) => total + t.amountMinor, 0);
+  const incomeMinor = included.filter((t) => t.type === 'income' && !t.refundOfTransactionId).reduce((total, t) => total + t.amountMinor, 0);
+  const expenseMinor = included.reduce((total, t) => total + (t.type === 'expense' ? t.amountMinor : t.refundOfTransactionId ? -t.amountMinor : 0), 0);
   return { incomeMinor, expenseMinor, netMinor: incomeMinor - expenseMinor, transactionCount: included.length };
 }
 
@@ -29,8 +31,8 @@ export function balanceThrough(transactions: Transaction[], openingBalanceMinor:
 export function categorySpending(transactions: Transaction[], categories: Category[], month: string) {
   const names = new Map(categories.map((category) => [category.id, category]));
   const values = new Map<string, number>();
-  transactions.filter((t) => t.type === 'expense' && isInMonth(t.date, month)).forEach((t) => {
-    values.set(t.categoryId, (values.get(t.categoryId) ?? 0) + t.amountMinor);
+  activeTransactions(transactions).filter((t) => (t.type === 'expense' || t.refundOfTransactionId) && isInMonth(t.date, month)).forEach((t) => {
+    values.set(t.categoryId, (values.get(t.categoryId) ?? 0) + (t.refundOfTransactionId ? -t.amountMinor : t.amountMinor));
   });
   return [...values.entries()].map(([categoryId, amountMinor]) => ({
     category: names.get(categoryId), categoryId, amountMinor
@@ -40,22 +42,23 @@ export function categorySpending(transactions: Transaction[], categories: Catego
 export function paymentBreakdown(transactions: Transaction[], methods: PaymentMethod[], month: string) {
   const names = new Map(methods.map((method) => [method.id, method.name]));
   const values = new Map<string, number>();
-  transactions.filter((t) => t.type === 'expense' && isInMonth(t.date, month)).forEach((t) => {
-    values.set(t.paymentMethodId, (values.get(t.paymentMethodId) ?? 0) + t.amountMinor);
+  activeTransactions(transactions).filter((t) => (t.type === 'expense' || t.refundOfTransactionId) && isInMonth(t.date, month)).forEach((t) => {
+    values.set(t.paymentMethodId, (values.get(t.paymentMethodId) ?? 0) + (t.refundOfTransactionId ? -t.amountMinor : t.amountMinor));
   });
   return [...values.entries()].map(([id, amountMinor]) => ({ name: names.get(id) ?? 'Unknown', amountMinor })).sort((a, b) => b.amountMinor - a.amountMinor);
 }
 
 export function budgetProgress(budget: Budget, transactions: Transaction[], month: string) {
-  const spentMinor = transactions.filter((t) => t.type === 'expense' && isInMonth(t.date, month) && (!budget.categoryId || t.categoryId === budget.categoryId))
-    .reduce((total, transaction) => total + transaction.amountMinor, 0);
+  const spentMinor = activeTransactions(transactions).filter((t) => (t.type === 'expense' || t.refundOfTransactionId) && isInMonth(t.date, month) && (!budget.categoryId || t.categoryId === budget.categoryId))
+    .reduce((total, transaction) => total + (transaction.refundOfTransactionId ? -transaction.amountMinor : transaction.amountMinor), 0);
   return { spentMinor, remainingMinor: budget.amountMinor - spentMinor, percent: budget.amountMinor ? (spentMinor / budget.amountMinor) * 100 : 0 };
 }
 
 export function goalProgress(item: WishlistItem, contributions: SavingsContribution[]) {
-  const savedMinor = contributions.filter((contribution) => contribution.wishlistItemId === item.id)
-    .reduce((total, contribution) => total + contribution.amountMinor, 0);
-  return { savedMinor, remainingMinor: Math.max(0, item.targetMinor - savedMinor), percent: item.targetMinor ? Math.min(100, savedMinor / item.targetMinor * 100) : 0 };
+  const entries = contributions.filter((contribution) => contribution.wishlistItemId === item.id);
+  const savedMinor = entries.reduce((total, entry) => total + [...savingsEffect(entry, contributions).reserved.values()].reduce((sum, amount) => sum + amount, 0), 0);
+  const legacyMinor = entries.filter((entry) => !entry.kind).reduce((sum, entry) => sum + entry.amountMinor, 0);
+  return { savedMinor, legacyMinor, remainingMinor: Math.max(0, item.targetMinor - savedMinor), percent: item.targetMinor ? Math.max(0, Math.min(100, savedMinor / item.targetMinor * 100)) : 0 };
 }
 
 export function parseAmountToMinor(input: string, currency = 'INR'): number | null {

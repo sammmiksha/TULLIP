@@ -48,6 +48,10 @@ describe('backup validation', () => {
       saveSettings: async () => {},
       snapshot: async () => backup.data,
       mergeBackup: async () => ({ imported: 0, skipped: 0 }),
+      saveFinancialTransaction: async () => {}, saveSavingsEntry: async () => {}, reverseSavingsEntry: async () => {},
+      editSavingsEntry: async () => {}, saveJarPurchase: async () => {}, saveAccount: async () => {},
+      refundTransaction: async () => {},
+      reconcileLegacyFunds: async () => {},
     };
 
     await expect(mergeInto(repository, backup)).resolves.toEqual({ imported: 1, skipped: 1 });

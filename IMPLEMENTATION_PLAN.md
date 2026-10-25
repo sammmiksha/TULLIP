@@ -67,3 +67,72 @@ inside the read-only AVD, the retry passed both tests. The AVD's saved state
 was not changed, and the temporary emulator was shut down after verification.
 This is debug-APK smoke verification on one emulator, not a physical-device or
 full Android regression test matrix.
+
+## Master brief audit — 25 October 2026
+
+This is an extension of the existing React/TypeScript/Vite + Capacitor app.
+The checklist above records the original delivery, not verification of the
+new master brief. Existing transactions, receipts, exports, navigation and
+SQLite/IndexedDB adapters are preserved. The owner's reported phone testing
+has not been independently repeated by this agent.
+
+| Existing feature | Audit result |
+| --- | --- |
+| Integer paise, cash-flow totals, transfers excluded from income/expenses | PASS — existing domain coverage; new account reconciliation pending |
+| Dashboard, journal, calendar, budgets, receipts, reports, PDF/CSV | PARTIAL — implemented; broader runtime regression pending |
+| Wish jars | PARTIAL — old contributions are planning records without source accounts; no withdrawals or linked purchases |
+| Accounts | NOT STARTED — optional transaction account fields exist, but no account entities/balances |
+| Personalization, onboarding, walkthrough, app lock | NOT STARTED |
+| Android | PARTIAL — prior emulator smoke tests passed; fresh master-brief APK and device testing pending |
+| Git | PASS — branch `build/tullip-v1`; prior in-progress Android audit, dependency fix and lifecycle test changes preserved |
+
+### Design reference interpretation
+
+The star-in-glass jar supplies the silhouette, glass highlights, plum outline,
+pink/lilac fill and buttercream star. Pixel desktop stickers supply crisp
+folder/dialog edges, small hearts and sparkles. The lavender arcade and night
+sky references supply periwinkle accents and quiet pixel cloud motifs. Cream
+reading surfaces keep transaction lists clear; gingham belongs in welcome,
+jar and empty-state panels. The third attachment contains no visible artwork.
+No final logo asset was identified: the replaceable jar illustration is a
+temporary component, and the existing Android launcher icon remains pending.
+
+### Execution and verification tracker
+
+The brief's execution order prioritizes accounting before visual polish.
+Each row will be updated only after its checks run; old planning contributions
+will never be silently treated as newly funded allocations.
+
+| Work | Status | Evidence / remaining check |
+| --- | --- | --- |
+| Phase 0: audit and preserve baseline | PASS | Source/configuration read; previous APK copied to ignored local storage |
+| Phase 7: account-aware allocations, withdrawals, purchases and migrations | NOT VERIFIED | In progress; isolated financial and migration tests required |
+| Phase 10: consistent financial screens and exports | NOT VERIFIED | Pending integration and reconciliation checks |
+| Phases 8/11: animated fill, goal history, milestones and empty states | NOT VERIFIED | Pending implementation |
+| Phase 6: optional device-credential app lock | NOT VERIFIED | Pending native implementation and runtime tests |
+| Phases 4/5/12: onboarding, walkthrough and preferences | NOT VERIFIED | Pending implementation and persistence checks |
+| Phase 9: compact calendar indicators | NOT VERIFIED | Pending regression checks |
+| Phases 1/2/13: shared palette, reference styling and accessibility | NOT VERIFIED | Pending UI and production-build checks |
+| Phase 3: final supplied logo | BLOCKED | Final logo asset not supplied; keep placeholder replaceable |
+| Phase 14: tests and regression fixes | NOT VERIFIED | Pending final suite |
+| Phase 15: fresh APK, installation and offline launch | NOT VERIFIED | Pending final SDK build and emulator/device verification |
+| Phase 16: documentation and GitHub distribution | NOT VERIFIED | Pending verified artifact and results |
+
+### Master update automated checkpoint
+
+- PASS: fresh `npm ci` against the lockfile, 57 tests across 9 files,
+  production frontend build and Capacitor sync, including the local pixel-sky
+  decoration. Final Gradle app/test APK assembly and the host unit task passed.
+- PASS: `npm audit --omit=dev` reports zero production vulnerabilities. Three
+  moderate development/iOS toolchain advisories remain; no forced major update
+  was applied.
+- PASS: real Dexie v1 migration, close/reopen persistence, atomic rollback,
+  legacy-fund reconciliation, allocations/releases/corrections/purchases/refunds,
+  card liabilities, reports/exports and safe empty-journal restore coverage.
+- PASS: actual rendered jar transform/opacity/ARIA values at 0/25/50/75/100%
+  and overfunding, plus reduced-motion/decorative rendering contracts.
+- PASS: browser first-launch empty-name validation, Unicode nickname trimming,
+  local preferences, introduction, tour skip and reload persistence.
+- NOT VERIFIED: actual SQLite upgrade, OS credential prompts, offline savings
+  flow and process restart until the authored
+  instrumentation tests execute. No physical phone is connected.

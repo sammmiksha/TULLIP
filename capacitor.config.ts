@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.tullip.journal',
   appName: 'TULLIP',
   webDir: 'dist',
+  loggingBehavior: 'none',
   android: { allowMixedContent: false },
   plugins: {
     CapacitorSQLite: {

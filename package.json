@@ -1,7 +1,7 @@
 {
   "name": "tullip",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,15 +13,15 @@
     "android:debug": "npm run cap:sync && cd android && gradlew.bat assembleDebug"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.1",
     "@capacitor/android": "^8.0.0",
     "@capacitor/camera": "^8.0.0",
-    "@capacitor-community/sqlite": "^8.1.1",
     "@capacitor/core": "^8.0.0",
     "@capacitor/filesystem": "^8.0.0",
     "@capacitor/share": "^8.0.0",
     "canvg": "^4.0.3",
     "dexie": "^4.2.1",
-    "jspdf": "^3.0.3",
+    "jspdf": "^4.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -30,6 +30,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.1",
+    "fake-indexeddb": "^6.2.6",
     "typescript": "~5.9.3",
     "vite": "^7.1.11",
     "vitest": "^4.0.4"

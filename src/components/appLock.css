@@ -1,0 +1,11 @@
+.app-lock-screen { min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 16px; padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom)); background: var(--buttercream, #fff4d8); color: var(--plum, #51236f); text-align: center; }
+.app-lock-screen h1, .app-lock-screen p { margin: 0; max-width: 34rem; }
+.app-lock-screen p { line-height: 1.6; }
+.app-lock-emblem { display: grid; place-content: center; border: 2px solid currentColor; border-radius: 32% 32% 40% 40%; width: 84px; height: 96px; font-size: 44px; background: var(--lavender, #e9ddf7); box-shadow: 4px 4px 0 var(--blush, #f3c4da); }
+.privacy-lock-settings .muted, .privacy-lock-note, .privacy-lock-setup p { font-size: 13px; line-height: 1.6; margin: 0; color: var(--muted-purple, #80658f); }
+.privacy-lock-status { margin: 0; font-size: 14px; }
+.privacy-lock-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.privacy-lock-actions button, .privacy-lock-settings > button { min-height: 44px; }
+.privacy-lock-setup { display: grid; gap: 12px; padding: 16px; background: var(--buttercream, #fff4d8); border: 1px dashed var(--muted-purple, #80658f); border-radius: 12px; }
+.privacy-lock-setup h3 { margin: 0; }
+.app-lock-content[hidden] { display: none !important; }

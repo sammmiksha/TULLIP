@@ -11,11 +11,16 @@ is packaged for Android with Capacitor.
   remove journal entries.
 - Use a date-aware calendar, monthly dashboard, category/payment-method
   breakdowns, budgets, and reports.
-- Track wishlist targets and separate savings contributions. A contribution is
-  planning progress, not an expense, so cash-flow totals stay accurate.
+- Record bank, cash and credit-card accounts separately from payment methods.
+  Allocate money to wish jars, release it, correct history, and fund linked
+  purchases without double-counting expenses. Animated fill reflects actual
+  reserved money. Old planning contributions remain separate historical entries.
 - Attach an image receipt to a transaction. Browser development stores a local
   data URL in IndexedDB; Android writes the image to app-private storage.
-- Export a month as CSV or PDF, and export/merge a JSON backup.
+- Export a month as CSV or PDF, export savings history, and export/merge a JSON
+  backup. Android opens its native share/save chooser; there is no automatic upload.
+- Choose a local nickname and preferences, use a skippable walkthrough, and
+  optionally protect the Android app with its actual device screen-lock credential.
 
 All monetary fields in the domain are integer paise (`amountMinor`,
 `targetMinor`, `openingBalanceMinor`). User-entered amounts are parsed into
@@ -30,8 +35,15 @@ Capacitor's app-private `Directory.Data`. No adapter sends data over the
 network.
 
 Backups are intentionally a user action. Restores merge new record IDs only,
-do not silently replace settings, and validate the TULLIP v1 envelope and
-integer money fields before writing anything.
+preserve existing preferences, validate the v1/v2 envelope and financial ledger,
+and write atomically. An empty target restores the backup's currency and starting
+funds. Android receipt bytes need a separate private copy; JSON includes metadata.
+
+Migration 2 adds accounts without rewriting old transaction/contribution
+payloads. Historical funds remain unassigned until explicitly reconciled into
+a bank or cash account. See [DATA_MODEL.md](DATA_MODEL.md) for accounting,
+refunds, safe corrections and upgrade behavior. The SQLite database is not
+encrypted; optional app lock protects casual access and stores no credential.
 
 The repository ignores receipts, SQLite files, backups, keystores, APKs/AABs,
 environment files, and local Android build/configuration output. Keep exported
@@ -40,7 +52,7 @@ backups in a private location outside the repository.
 ## Development
 
 ```powershell
-npm install
+npm ci
 npm run dev
 ```
 
@@ -104,6 +116,12 @@ the journal, receipts, and preferences. Moving data is a manual export/restore
 operation.
 
 ## Verification status
+
+The master-brief update is version **0.2.0**, Android versionCode **2**, on
+`build/tullip-v1`. Intermediate domain/storage/UI tests and the production
+build pass. Fresh final Android build, upgrade, app-lock and device results
+are tracked in [ANDROID_BUILD.md](ANDROID_BUILD.md) and [TESTING.md](TESTING.md).
+The following paragraph records the previous build, not the new update:
 
 Web tests (11), the production build, Capacitor sync, Android SDK packaging,
 APK installation, and two offline Android 16 emulator smoke tests passed.

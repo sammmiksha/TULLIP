@@ -1,6 +1,14 @@
-import type { AppSettings, Category, PaymentMethod } from './types';
+import type { Account, AppSettings, Category, PaymentMethod } from './types';
 
 const timestamp = () => new Date().toISOString();
+export const BANK_ACCOUNT_ID = 'account-bank';
+export const CASH_ACCOUNT_ID = 'account-cash';
+export const LEGACY_ACCOUNT_ID = 'account-legacy';
+export const makeDefaultAccounts = (currency = 'INR'): Account[] => [
+  { id: BANK_ACCOUNT_ID, name: 'Bank account', kind: 'bank', currency, openingBalanceMinor: 0, createdAt: timestamp(), updatedAt: timestamp() },
+  { id: CASH_ACCOUNT_ID, name: 'Cash wallet', kind: 'cash', currency, openingBalanceMinor: 0, createdAt: timestamp(), updatedAt: timestamp() },
+  { id: LEGACY_ACCOUNT_ID, name: 'Historical / unassigned', kind: 'legacy', currency, openingBalanceMinor: 0, createdAt: timestamp(), updatedAt: timestamp() },
+];
 const entry = (id: string, name: string, kind: Category['kind'], color: string, sticker: string): Category => ({
   id, name, kind, color, sticker, createdAt: timestamp(), updatedAt: timestamp()
 });
@@ -38,5 +46,6 @@ export const DEFAULT_PAYMENT_METHODS: PaymentMethod[] = [
 export const makeDefaultSettings = (): AppSettings => ({
   id: 'app', currency: 'INR', dateFormat: 'DD MMM YYYY', weekStartsOn: 1,
   openingBalanceMinor: 0, budgetWarningPercent: 80, reducedDecorations: false,
-  reducedMotion: false, createdAt: timestamp(), updatedAt: timestamp()
+  reducedMotion: false, displayName: '', onboardingCompleted: false, walkthroughCompleted: false,
+  openingBalanceAccountId: BANK_ACCOUNT_ID, createdAt: timestamp(), updatedAt: timestamp()
 });

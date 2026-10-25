@@ -1,0 +1,22 @@
+:root {
+  --lavender: #E9DDF7;
+  --lilac: #D9C4EE;
+  --plum: #51236F;
+  --muted-purple: #80658F;
+  --blush: #F3C4DA;
+  --berry: #D95188;
+  --buttercream: #FFF4D8;
+  --sage: #BBD7B8;
+  --periwinkle: #B8B9F0;
+  --warm-white: #FFFDFB;
+  --ink: #35233F;
+  --muted: #705B7A;
+  --income: #236044;
+  --expense: #A52E57;
+  --border: #D7C7DC;
+  --focus: #663087;
+  --star-edge: #D7AF51;
+  --cork: #805447;
+  --cork-highlight: #A87561;
+  --gingham: repeating-linear-gradient(0deg, transparent, transparent 10px, #D9C4EE55 10px, #D9C4EE55 20px), repeating-linear-gradient(90deg, var(--warm-white), var(--warm-white) 10px, var(--lavender) 10px, var(--lavender) 20px);
+}
