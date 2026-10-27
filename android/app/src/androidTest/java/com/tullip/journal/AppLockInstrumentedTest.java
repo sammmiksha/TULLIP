@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,8 +81,7 @@ public class AppLockInstrumentedTest {
             MainActivity activity = startActivity();
             try {
                 Pending cancelledSetup = request(activity, "enable");
-                waitForCredentialUi();
-                shell("input keyevent 4");
+                cancelCredential();
                 assertFalse(cancelledSetup.await());
                 assertFalse(activity.lockStatus().getBoolean("enabled"));
 
@@ -95,8 +95,7 @@ public class AppLockInstrumentedTest {
                 instrumentation.runOnMainSync(activity::lockJournal);
                 assertShielded(activity);
                 Pending cancelledDisable = request(activity, "disable");
-                waitForCredentialUi();
-                shell("input keyevent 4");
+                cancelCredential();
                 assertFalse(cancelledDisable.await());
                 assertTrue(activity.lockStatus().getBoolean("enabled"));
                 assertShielded(activity);
@@ -107,7 +106,7 @@ public class AppLockInstrumentedTest {
                 Thread.sleep(1500);
                 assertEquals("Wrong credential must not resolve as authenticated", 1L, failed.done.getCount());
                 assertShielded(activity);
-                shell("input keyevent 4");
+                cancelCredential();
                 assertFalse(failed.await());
 
                 Pending unlock = request(activity, "unlock");
@@ -179,36 +178,95 @@ public class AppLockInstrumentedTest {
     }
 
     private void enterCredential(String credential) throws Exception {
+        AccessibilityNodeInfo input = waitForCredentialUi();
+        input.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+        Bundle empty = new Bundle();
+        empty.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "");
+        if (!input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, empty)) {
+            // Some credential implementations forbid accessibility text replacement. Clear
+            // with ordinary keyboard events instead; never inject a successful auth result.
+            StringBuilder clearKeys = new StringBuilder("input keyevent ").append(KeyEvent.KEYCODE_MOVE_END);
+            for (int index = 0; index < 64; index++) clearKeys.append(' ').append(KeyEvent.KEYCODE_DEL);
+            shell(clearKeys.toString());
+        }
+        // Re-observe after focus/clear. A cancelled prompt's closing window must not receive
+        // the next prompt's keyboard input while SystemUI is replacing its credential view.
         waitForCredentialUi();
-        // Numeric keyboard input goes only to the actual Android system credential activity.
+        // Correct and incorrect digits both go through the real Android credential input.
         shell("input text " + credential);
-        shell("input keyevent " + KeyEvent.KEYCODE_ENTER);
         AccessibilityNodeInfo root = automation.getRootInActiveWindow();
-        if (root != null && ("com.android.settings".equals(String.valueOf(root.getPackageName()))
-                || "com.android.systemui".equals(String.valueOf(root.getPackageName())))) clickCredentialConfirmation(root);
+        if (!isCredentialOwner(root)) return; // Auto-submit may already have dismissed it.
+        AccessibilityNodeInfo currentInput = findCredentialInput(root);
+        if (currentInput != null && Build.VERSION.SDK_INT >= 30) {
+            int imeEnter = AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.getId();
+            boolean exposesImeEnter = currentInput.getActionList().stream().anyMatch(action -> action.getId() == imeEnter);
+            if (exposesImeEnter && currentInput.performAction(imeEnter)) return;
+        }
+        if (!clickCredentialConfirmation(root)) shell("input keyevent " + KeyEvent.KEYCODE_ENTER);
     }
 
-    private void waitForCredentialUi() throws Exception {
+    private AccessibilityNodeInfo waitForCredentialUi() throws Exception {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(25);
+        try {
+            automation.waitForIdle(500, 5000);
+        } catch (TimeoutException ignored) {
+            // Busy emulator services may keep producing events; stability below remains required.
+        }
+        int stableWindow = -1;
+        long stableSince = 0;
         while (System.nanoTime() < deadline) {
             AccessibilityNodeInfo root = automation.getRootInActiveWindow();
-            if (root != null) {
-                String owner = String.valueOf(root.getPackageName());
-                if (("com.android.settings".equals(owner) || "com.android.systemui".equals(owner))
-                        && hasCredentialInput(root)) return;
+            AccessibilityNodeInfo input = isCredentialOwner(root) ? findCredentialInput(root) : null;
+            if (input != null && input.isFocused() && input.getWindowId() >= 0) {
+                if (input.getWindowId() != stableWindow) {
+                    stableWindow = input.getWindowId();
+                    stableSince = System.nanoTime();
+                } else if (System.nanoTime() - stableSince >= TimeUnit.MILLISECONDS.toNanos(600)) {
+                    return input;
+                }
+            } else {
+                stableWindow = -1;
+                stableSince = 0;
             }
-            Thread.sleep(200);
+            Thread.sleep(100);
         }
-        fail("Android's system credential screen did not appear");
+        throw new AssertionError("Android's focused system credential input did not become stable");
     }
 
-    private boolean hasCredentialInput(AccessibilityNodeInfo node) {
+    private boolean isCredentialOwner(AccessibilityNodeInfo root) {
+        if (root == null) return false;
+        String owner = String.valueOf(root.getPackageName());
+        return "com.android.settings".equals(owner) || "com.android.systemui".equals(owner);
+    }
+
+    private AccessibilityNodeInfo findCredentialInput(AccessibilityNodeInfo node) {
         String id = String.valueOf(node.getViewIdResourceName()).toLowerCase();
-        if (node.isVisibleToUser() && (node.isEditable() || node.isPassword()
-                || id.contains("pin_entry") || id.contains("pinentry"))) return true;
+        if (node.isVisibleToUser() && node.isEnabled() && (node.isEditable() || node.isPassword()
+                || id.contains("pin_entry") || id.contains("pinentry") || id.contains("lockpassword"))) return node;
         for (int index = 0; index < node.getChildCount(); index++) {
             AccessibilityNodeInfo child = node.getChild(index);
-            if (child != null && hasCredentialInput(child)) return true;
+            AccessibilityNodeInfo input = child == null ? null : findCredentialInput(child);
+            if (input != null) return input;
+        }
+        return null;
+    }
+
+    private void cancelCredential() throws Exception {
+        waitForCredentialUi();
+        AccessibilityNodeInfo root = automation.getRootInActiveWindow();
+        if (!isCredentialOwner(root) || !clickCredentialCancel(root)) shell("input keyevent " + KeyEvent.KEYCODE_BACK);
+    }
+
+    private boolean clickCredentialCancel(AccessibilityNodeInfo node) {
+        String id = String.valueOf(node.getViewIdResourceName());
+        String label = String.valueOf(node.getText()).trim();
+        if (node.isVisibleToUser() && node.isClickable() && node.isEnabled()
+                && (id.endsWith("/back_button") || "Cancel".equalsIgnoreCase(label))) {
+            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        }
+        for (int index = 0; index < node.getChildCount(); index++) {
+            AccessibilityNodeInfo child = node.getChild(index);
+            if (child != null && clickCredentialCancel(child)) return true;
         }
         return false;
     }

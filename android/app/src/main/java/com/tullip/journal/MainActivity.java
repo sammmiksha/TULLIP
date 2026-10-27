@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -16,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.JSObject;
 
@@ -78,8 +81,22 @@ public class MainActivity extends BridgeActivity {
         if (lockEnabled) getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         registerPlugin(AppLockPlugin.class);
         super.onCreate(savedInstanceState);
+        applyPaperSystemBars();
         createShield();
         updateShield();
+    }
+
+    @SuppressWarnings("deprecation") // Bar colors remain necessary on API 24-34; edge-to-edge controls API 35+.
+    private void applyPaperSystemBars() {
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(true);
+        controller.setAppearanceLightNavigationBars(Build.VERSION.SDK_INT >= 26);
+        if (Build.VERSION.SDK_INT < 35) {
+            int paper = Color.rgb(255, 253, 251);
+            getWindow().setStatusBarColor(paper);
+            // API 24-25 cannot draw dark navigation icons, so retain a contrasting plum bar.
+            getWindow().setNavigationBarColor(Build.VERSION.SDK_INT >= 26 ? paper : Color.rgb(81, 35, 111));
+        }
     }
 
     private SharedPreferences privacyPreferences() {
@@ -238,6 +255,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onResume() {
         super.onResume();
+        applyPaperSystemBars();
         updateShield();
         notifyLockState();
     }

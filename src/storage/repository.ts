@@ -4,6 +4,7 @@ import { CapacitorSQLite, SQLiteConnection, type SQLiteDBConnection } from '@cap
 import { DEFAULT_CATEGORIES, DEFAULT_PAYMENT_METHODS, LEGACY_ACCOUNT_ID, makeDefaultAccounts, makeDefaultSettings } from '../domain/defaults';
 import { accountsFor, assertDate, assertLedgerValid, assertPositiveMinor, fundingFor, requireAccount, validateTransaction } from '../domain/ledger';
 import { goalProgress } from '../domain/finance';
+import { validateReceiptAttachment } from '../domain/receipts';
 import type { Account, AppSettings, Attachment, BackupFile, EntityMap, EntityName, SavingsContribution, Transaction, TullipSnapshot } from '../domain/types';
 
 export const ENTITY_NAMES: EntityName[] = ['accounts', 'categories', 'paymentMethods', 'wishlistItems', 'transactions', 'budgets', 'savingsContributions', 'attachments'];
@@ -407,6 +408,7 @@ export function validateBackup(value: unknown): asserts value is BackupFile {
       const field = minorFields[name]; if (field && !Number.isSafeInteger((record as unknown as Record<string, unknown>)[field])) throw new Error(`Backup has a non-integer ${field}. No data was changed.`);
       if (field && name !== 'settings' && name !== 'accounts' && Number((record as unknown as Record<string, unknown>)[field]) <= 0) throw new Error(`Backup has a nonpositive ${field}. No data was changed.`);
       if (name === 'transactions' && !['income', 'expense', 'transfer'].includes((record as Transaction).type)) throw new Error('Backup has an invalid transaction type. No data was changed.');
+      if (name === 'attachments') validateReceiptAttachment(record);
     }
   }
 }

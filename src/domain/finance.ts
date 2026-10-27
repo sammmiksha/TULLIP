@@ -75,9 +75,11 @@ export function formatMoney(minor: number, currency = 'INR'): string {
 
 export function formatDate(iso: string, format: 'DD MMM YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' = 'DD MMM YYYY'): string {
   if (format === 'YYYY-MM-DD') return iso;
+  const [year, month, day] = iso.split('-');
+  if (format === 'MM/DD/YYYY') return `${month}/${day}/${year}`;
   const date = new Date(`${iso}T12:00:00`);
-  if (format === 'MM/DD/YYYY') return new Intl.DateTimeFormat(undefined, { month: '2-digit', day: '2-digit', year: 'numeric' }).format(date);
-  return new Intl.DateTimeFormat(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+  const monthName = new Intl.DateTimeFormat(undefined, { month: 'short' }).format(date);
+  return `${day} ${monthName} ${year}`;
 }
 
 export interface CalendarDay { date: string; number: number; inMonth: boolean; isToday: boolean; }
