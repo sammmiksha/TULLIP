@@ -11,7 +11,7 @@
 | Application ID | `com.tullip.journal` |
 | Display name | TULLIP |
 | Version | Master update: project/Settings/Android `0.2.0`, versionCode `2`; application ID and debug signing preserved |
-| Icon | Existing stock Capacitor blue icon; `android/app/src/main/res/mipmap-*/ic_launcher.png` and adaptive resources |
+| Icon | Owner-supplied lavender arcade PNG, received 27 October 2026; exact original preserved, adaptive/legacy and splash resources SDK-linked; device rendering pending |
 | Android configuration | Minimum API 24 (Android 7.0), target/compile API 36; runtime testing does not cover every supported OS version |
 | Runtime data | Native SQLite and app-private receipts; browser IndexedDB fallback; integer minor units |
 | Tooling | JDK 21, Android SDK APIs 36 and 36.1, Build Tools 35/36, platform-tools, emulator, Gradle available; Android Studio and `sdkmanager` were not found |
@@ -39,6 +39,18 @@ onboarding fields, preserving original transaction and contribution payloads.
 | Physical-phone installation | NOT VERIFIED — no connected phone |
 | Public GitHub Release and anonymous download | NOT VERIFIED — pending publication and verification |
 | Website | No website requested or deployed |
+
+### Supplied artwork verification — 27 October 2026
+
+- PASS: arcade original, 736×736, 138,928 bytes; SHA-256
+  `3cdf2d9d13b500f49a0a49d660cb5fb68321d549bd7d4e757ba1aba69df4dd0f`.
+- PASS: transparent tulip original, 500×500, 71,576 bytes; SHA-256
+  `3e17e7fdc1967815e5e38e4200b9a76f7a7baecf05c98024a037351dfc79d3ae`.
+- PASS: exact source copies, both images emitted in the production bundle,
+  57 tests, frontend build, sync and SDK app/test APK assembly.
+- PASS: adaptive icon XML references the supplied arcade PNG with 29% safe
+  padding. API 24 legacy icon and Android 12 splash resources link successfully.
+- NOT VERIFIED: final launcher/splash/in-app rendering until the emulator run.
 
 Generated APKs, tool downloads, caches, logs, databases, private receipts,
 backups, environment files, and signing keys remain outside Git. Release
@@ -97,9 +109,15 @@ Physical-phone installation is not claimed without an actual connected-phone run
 - This is a debug testing APK. Native SQLite is not encrypted. Optional app
   lock uses the Android device credential and a native privacy shield; it is
   protection against casual access, not database encryption.
-- The final logo was not supplied. The third reference is fully transparent;
-  the new jar component is replaceable and the launcher retains its existing
-  Capacitor placeholder icon.
+- The final logo supplied on 27 October 2026 is the lavender arcade image.
+  It replaces the launcher and in-app placeholders. Its original PNG is kept
+  unchanged; Android drawable padding handles icon masks. Wish jars retain
+  their separate data-driven star-and-glass savings illustration.
+- The separately supplied transparent tulip replaces decorative tulips in the
+  header, home greeting, loading view and empty journal. The arcade remains
+  the launcher/splash logo and welcome illustration. Both original PNGs are
+  preserved without repainting; only transparent margins are outside the
+  tulip's display frame.
 - Runtime artifacts contain bundled frontend assets, libraries and the public
   signing certificate. Keystores/private keys, databases, receipt files,
   exports and personal fixtures must never be packaged or committed.

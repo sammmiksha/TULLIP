@@ -5,6 +5,11 @@ account, bank connection, analytics, cloud sync, ads, or remote user-data
 service. The same React application runs in a browser during development and
 is packaged for Android with Capacitor.
 
+The owner-supplied arcade image is the Android launcher/splash logo and welcome
+illustration. The supplied transparent tulip appears in the header, greeting,
+loading view and empty journal. Both original PNGs are preserved in `src/assets`;
+savings jars keep their separate animated progress illustration.
+
 ## What it does
 
 - Record income, expenses, and transfers; browse, search, filter, edit, and

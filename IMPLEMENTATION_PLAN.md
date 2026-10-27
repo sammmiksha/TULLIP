@@ -113,7 +113,7 @@ will never be silently treated as newly funded allocations.
 | Phases 4/5/12: onboarding, walkthrough and preferences | NOT VERIFIED | Pending implementation and persistence checks |
 | Phase 9: compact calendar indicators | NOT VERIFIED | Pending regression checks |
 | Phases 1/2/13: shared palette, reference styling and accessibility | NOT VERIFIED | Pending UI and production-build checks |
-| Phase 3: final supplied logo | BLOCKED | Final logo asset not supplied; keep placeholder replaceable |
+| Phase 3: final supplied logo | NOT VERIFIED | Exact arcade PNG supplied 27 October; launcher/in-app integration in progress, package/render checks pending |
 | Phase 14: tests and regression fixes | NOT VERIFIED | Pending final suite |
 | Phase 15: fresh APK, installation and offline launch | NOT VERIFIED | Pending final SDK build and emulator/device verification |
 | Phase 16: documentation and GitHub distribution | NOT VERIFIED | Pending verified artifact and results |
@@ -136,3 +136,17 @@ will never be silently treated as newly funded allocations.
 - NOT VERIFIED: actual SQLite upgrade, OS credential prompts, offline savings
   flow and process restart until the authored
   instrumentation tests execute. No physical phone is connected.
+
+### Final logo — 27 October 2026
+
+The owner supplied the lavender arcade image as TULLIP's final logo. This
+supersedes the earlier placeholder requirement. Preserve the original PNG
+without repainting or cropping; use it in the launcher, launch presentation,
+header and onboarding. Android drawable padding must keep it inside adaptive
+icon masks. Savings jars remain a separate progress illustration.
+
+The owner also supplied a transparent tulip PNG on 27 October. Its original
+500×500 file replaces the generated tulip decoration in the header, home
+greeting, loading view and empty journal. Display frames omit only transparent
+outer margins; the flower is not repainted or cropped. The arcade image
+continues to serve as the Android launcher/splash logo and welcome illustration.

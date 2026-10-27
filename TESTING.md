@@ -18,6 +18,12 @@ delivery or physical-device behavior.
 | Native credential authentication/lifecycle | NOT VERIFIED — actual Android prompt exercise pending |
 | Physical phone, TalkBack and full OS/device matrix | NOT VERIFIED |
 
+On 27 October, the original arcade logo and transparent tulip were integrated.
+The full 57-test suite, production build, Capacitor sync and SDK app/test APK
+assembly passed again. The production bundle includes both original PNGs;
+the icon XML uses the arcade image with safe padding. Runtime artwork and
+financial/credential results remain pending below until actually executed.
+
 The suite covers integer parsing and safe ranges, salary/cash/UPI accounts,
 multiple allocations, partial/full/cross-account release, refill, correction,
 reversal, duplicate submissions, backdated insolvency, linked purchases and

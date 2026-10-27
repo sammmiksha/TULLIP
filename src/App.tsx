@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { addMonths, budgetProgress, calendarDays, categorySpending, dateKey, financialSummary, formatDate, formatMoney, monthlyTotals } from './domain/finance';
 import type { AppSettings, Budget, EntityMap, EntityName, Transaction, TullipSnapshot } from './domain/types';
 import { repository } from './storage/repository';
-import { AnimatedJar } from './components/AnimatedJar';
+import { BrandLogo } from './components/BrandLogo';
+import { TulipArtwork } from './components/TulipArtwork';
 import { GoalsScreen } from './components/GoalsScreen';
 import { Onboarding } from './components/Onboarding';
 import { Walkthrough } from './components/Walkthrough';
@@ -42,10 +43,10 @@ function App() {
   const openNewTransaction = (date?: string) => { setPrefillDate(date); setPurchaseJar(undefined); setTransactionDraft('new'); };
   const updateSettings = async (settings: AppSettings) => { await repo.saveSettings(settings); await refreshAfterSave(); };
 
-  if (!ready) return <main className="loading-screen"><PixelTulip /><p>Opening your private money journal…</p>{toast && <><p className="form-error" role="alert">{toast}</p><button className="secondary-button" onClick={() => void load().catch(error => setToast(String(error.message)))}>Try opening again</button></>}</main>;
-  if (data.settings.onboardingCompleted === false || onboardingReplay) return <Onboarding settings={data.settings} introductionOnly={onboardingReplay} onCancel={onboardingReplay ? () => setOnboardingReplay(false) : undefined} illustration={<AnimatedJar savedMinor={1} targetMinor={2} decorative reducedMotion={data.settings.reducedMotion} />} onComplete={async settings => { await updateSettings(settings); setOnboardingReplay(false); setTour(!data.settings.walkthroughCompleted); }} />;
+  if (!ready) return <main className="loading-screen"><TulipArtwork /><p>Opening your private money journal…</p>{toast && <><p className="form-error" role="alert">{toast}</p><button className="secondary-button" onClick={() => void load().catch(error => setToast(String(error.message)))}>Try opening again</button></>}</main>;
+  if (data.settings.onboardingCompleted === false || onboardingReplay) return <Onboarding settings={data.settings} introductionOnly={onboardingReplay} onCancel={onboardingReplay ? () => setOnboardingReplay(false) : undefined} illustration={<BrandLogo decorative={false} />} onComplete={async settings => { await updateSettings(settings); setOnboardingReplay(false); setTour(!data.settings.walkthroughCompleted); }} />;
   return <main className={`app${data.settings.reducedDecorations ? ' simple' : ''}${data.settings.reducedMotion ? ' reduced-motion' : ''}`}>
-    <header className="topbar"><button className="brand" onClick={() => setScreen('home')} aria-label="Go to dashboard"><PixelTulip /><span>TULLIP</span></button><span className="local-only">⌂ Local only</span></header>
+    <header className="topbar"><button className="brand" onClick={() => setScreen('home')} aria-label="Go to dashboard"><TulipArtwork /><span>TULLIP</span></button><span className="local-only">⌂ Local only</span></header>
     <section className="content">
       {screen === 'home' && <Dashboard data={data} month={month} setMonth={setMonth} onAdd={openNewTransaction} onScreen={setScreen} onEdit={setTransactionDraft} />}
       {screen === 'calendar' && <CalendarScreen data={data} month={month} setMonth={setMonth} selectedDate={selectedDate} setSelectedDate={setSelectedDate} onAdd={openNewTransaction} onEdit={setTransactionDraft} />}
@@ -62,7 +63,6 @@ function App() {
   </main>;
 }
 
-function PixelTulip() { return <span className="pixel-tulip" aria-hidden="true"><i>◆</i><b>╿</b></span>; }
 function Nav({ screen, setScreen }: { screen: Screen; setScreen: (screen: Screen) => void }) {
   const items: Array<[Screen, string, string]> = [['home', '⌂', 'Home'], ['calendar', '▦', 'Calendar'], ['transactions', '≡', 'Journal'], ['goals', '♡', 'Goals'], ['reports', '▥', 'Reports'], ['settings', '⚙', 'Settings']];
   return <nav className="bottom-nav" aria-label="Main navigation">{items.map(([id, icon, label]) => <button key={id} className={screen === id ? 'active' : ''} onClick={() => setScreen(id)}><span>{icon}</span>{label}</button>)}</nav>;
@@ -74,7 +74,7 @@ function Dashboard({ data, month, setMonth, onAdd, onScreen, onEdit }: { data: T
   const monthlyBudget = data.budgets.find((budget) => budget.month === month && !budget.categoryId);
   const recent = [...data.transactions].sort(cmpNewest).slice(0, 5);
   return <>
-    <section className="hero"><div><p className="eyebrow">{formatDate(today, data.settings.dateFormat)}</p><h1>{data.settings.displayName ? `Hi, ${data.settings.displayName}` : 'Your little money journal'} <span>✦</span></h1><p>Small entries make a clear money story.</p></div><PixelTulip /></section>
+    <section className="hero"><div><p className="eyebrow">{formatDate(today, data.settings.dateFormat)}</p><h1>{data.settings.displayName ? `Hi, ${data.settings.displayName}` : 'Your little money journal'} <span>✦</span></h1><p>Small entries make a clear money story.</p></div><TulipArtwork /></section>
     <MonthPicker month={month} setMonth={setMonth} />
     <section className="balance-card" data-tour="balance"><div><p>Available balance</p><strong>{formatMoney(balance, data.settings.currency)}</strong><small>Unallocated cash after jar savings · through the selected month</small></div><span className="balance-sticker" aria-hidden="true">✦</span></section><section className="allocation-summary"><span>Reserved for wishes <b>{formatMoney(summary.allocatedMinor, data.settings.currency)}</b></span><span>Card liabilities <b>{formatMoney(summary.liabilitiesMinor, data.settings.currency)}</b></span></section><div className="dashboard-actions"><button className="secondary-button" data-tour="add-income" onClick={() => onAdd()}>＋ Record income or expense</button><button className="text-button" onClick={() => onScreen('goals')}>Visit your jars ♡</button></div>
     <section className="metric-grid">
@@ -94,7 +94,7 @@ function Dashboard({ data, month, setMonth, onAdd, onScreen, onEdit }: { data: T
 function Metric({ label, amount, currency, tone, onClick }: { label: string; amount: number; currency: string; tone: string; onClick: () => void }) { return <button className={`metric ${tone}`} onClick={onClick}><span>{label}</span><strong>{formatMoney(amount, currency)}</strong></button>; }
 function MonthPicker({ month, setMonth }: { month: string; setMonth: (value: string) => void }) { return <div className="month-picker"><button aria-label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>‹</button><button className="month-label" onClick={() => setMonth(dateKey().slice(0, 7))}>{monthName(month)} <small>today</small></button><button aria-label="Next month" onClick={() => setMonth(addMonths(month, 1))}>›</button></div>; }
 function BudgetCard({ budget, transactions, currency, onClick }: { budget: Budget; transactions: Transaction[]; currency: string; onClick: () => void }) { const progress = budgetProgress(budget, transactions, budget.month); const status = progress.remainingMinor >= 0 ? `${formatMoney(progress.remainingMinor, currency)} left` : `${formatMoney(-progress.remainingMinor, currency)} over`; return <button className="card budget-card" onClick={onClick}><span>🎯</span><div><b>Monthly spending budget</b><p>{formatMoney(progress.spentMinor, currency)} of {formatMoney(budget.amountMinor, currency)} · {status}</p><i><em style={{ width: `${Math.min(100, progress.percent)}%` }} /></i></div></button>; }
-function Empty({ icon, text, action, onClick }: { icon: string; text: string; action?: string; onClick?: () => void }) { return <div className="empty"><span>{icon}</span><p>{text}</p>{action && <button className="secondary-button" onClick={onClick}>{action}</button>}</div>; }
+function Empty({ icon, text, action, onClick }: { icon: string; text: string; action?: string; onClick?: () => void }) { return <div className="empty">{icon === '🌷' ? <TulipArtwork /> : <span aria-hidden="true">{icon}</span>}<p>{text}</p>{action && <button className="secondary-button" onClick={onClick}>{action}</button>}</div>; }
 function CalendarScreen({ data, month, setMonth, selectedDate, setSelectedDate, onAdd, onEdit }: { data: TullipSnapshot; month: string; setMonth: (value: string) => void; selectedDate: string; setSelectedDate: (value: string) => void; onAdd: (date?: string) => void; onEdit: (transaction: Transaction) => void }) {
   const activity = calendarActivity(data.transactions); const days = calendarDays(month, data.settings.weekStartsOn); const labels = data.settings.weekStartsOn === 1 ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayRecords = data.transactions.filter((transaction) => transaction.date === selectedDate); const dayTotals = monthlyTotals(dayRecords, selectedDate.slice(0, 7));

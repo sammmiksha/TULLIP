@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preserve the complete supplied square, including its original white corners.
+     A 45.36dp square fits fully inside the adaptive 66dp safe circle. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="29%"
+    android:insetTop="29%"
+    android:insetRight="29%"
+    android:insetBottom="29%">
+    <bitmap android:src="@drawable/tullip_logo" android:gravity="fill" android:filter="true" />
+</inset>

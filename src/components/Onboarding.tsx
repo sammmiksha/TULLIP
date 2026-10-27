@@ -9,7 +9,7 @@ export interface OnboardingProps {
   onCancel?: () => void;
   /** Replaying the introduction never asks an existing user to re-enter preferences. */
   introductionOnly?: boolean;
-  /** Replaceable illustration slot; this is deliberately not a final logo. */
+  /** Brand illustration slot; the application supplies the owner's exact logo. */
   illustration?: ReactNode;
 }
 

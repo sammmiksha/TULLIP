@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The 288dp splash canvas is masked to a 192dp circle on Android 12+.
+     Fixed dimensions also work on API 24-25, without fractional insets. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <size android:width="288dp" android:height="288dp" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    <item android:width="128dp" android:height="128dp" android:gravity="center">
+        <bitmap android:src="@drawable/tullip_logo" android:gravity="fill" android:filter="true" />
+    </item>
+</layer-list>
