@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { appLockAction, appLockStatus, observeAppLock, type AppLockStatus } from '../services/appLock';
+import { appLockAction, appLockStatus, observeAppLock, type AppLockStatus, type AppLockAction } from '../services/appLock';
 import './appLock.css';
 
-type LockAction = 'enable' | 'disable' | 'authenticate' | 'lock';
+type LockAction = AppLockAction;
 interface AppLockContextValue {
   status: AppLockStatus | null;
   busy: boolean;
@@ -43,7 +43,7 @@ export function AppLockBoundary({ children }: { children: ReactNode }) {
       setStatus(next);
       if (next.authenticated === false) setError('Authentication was cancelled or not completed.');
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Android could not complete authentication.');
+      setError(caught instanceof Error ? caught.message : 'TULLIP could not complete PIN verification.');
       try { setStatus(await appLockStatus()); } catch { /* Keep the existing privacy gate. */ }
     } finally { setBusy(false); }
   };
@@ -54,7 +54,7 @@ export function AppLockBoundary({ children }: { children: ReactNode }) {
       ? <main className="app-lock-screen" aria-busy={busy}>
           <div className="app-lock-emblem" aria-hidden="true">✦</div>
           <h1>{status?.locked ? 'Your private journal' : 'Opening TULLIP'}</h1>
-          <p>{status?.locked ? 'Unlock with your Android screen lock to see your money and wishes.' : 'Checking your privacy preferences…'}</p>
+          <p>{status?.locked ? 'Unlock with your own six-digit TULLIP PIN to see your money and wishes.' : 'Checking your privacy preferences…'}</p>
           {status?.locked && <button className="primary-button" disabled={busy} onClick={() => void act('authenticate')}>Unlock journal</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
         </main>
@@ -69,30 +69,32 @@ export function PrivacyLockSettings() {
   const { status, busy, error, act } = lock;
   return <section className="card settings-form privacy-lock-settings" aria-labelledby="privacy-lock-heading">
     <h2 id="privacy-lock-heading">Privacy &amp; App Lock</h2>
-    <p className="muted">Optional protection using your Android screen-lock PIN, pattern, or password. TULLIP never receives or stores that credential.</p>
+    <p className="muted">Your journal, your secret. Create a six-digit TULLIP PIN that is separate from your phone screen lock. PIN entry and verification stay on your device.</p>
     {!status?.supported
-      ? <p className="privacy-lock-note">App lock is available in the installed Android app. This browser preview has no device-authentication protection.</p>
+      ? <p className="privacy-lock-note">App lock is available in the installed Android app. This browser preview has no app-lock protection.</p>
       : <>
           <p className="privacy-lock-status">App lock: <strong>{status.enabled ? 'Enabled' : 'Off'}</strong></p>
           {status.enabled
             ? <div className="privacy-lock-actions">
                 <button className="secondary-button" disabled={busy} onClick={() => void act('lock')}>Lock now</button>
-                <button className="secondary-button" disabled={busy} onClick={() => void act('disable')}>Authenticate &amp; disable lock</button>
+                <button className="secondary-button" disabled={busy} onClick={() => void act('change')}>{status.migrationRequired ? 'Upgrade to TULLIP PIN' : 'Change TULLIP PIN'}</button>
+                <button className="secondary-button" disabled={busy} onClick={() => void act('disable')}>Verify PIN &amp; disable lock</button>
               </div>
             : !setup
               ? <button className="secondary-button" disabled={busy || !status.available} onClick={() => setSetup(true)}>Set up app lock</button>
               : <div className="privacy-lock-setup">
                   <h3>Before you enable it</h3>
-                  <p>Your journal will lock on each new app session and whenever TULLIP leaves the foreground, including opening a receipt picker or another app. Android will ask for your screen-lock credential again.</p>
-                  <p>There is no TULLIP recovery account or separate app PIN. Manage or change your credential in Android Settings. Keep a private journal backup; clearing app data or uninstalling removes local records.</p>
+                  <p>Your journal will lock on each new app session and whenever TULLIP leaves the foreground, including opening a receipt picker or another app. TULLIP will ask for your own app PIN again.</p>
+                  <p>Choose a PIN you can remember. There is no recovery account or reset bypass if you forget it. Keep a private journal backup; clearing app data or uninstalling removes local records. TULLIP never deletes your journal to reset a PIN.</p>
                   <div className="privacy-lock-actions">
-                    <button className="primary-button" disabled={busy} onClick={() => { setSetup(false); void act('enable'); }}>Confirm with Android &amp; enable</button>
+                    <button className="primary-button" disabled={busy} onClick={() => { setSetup(false); void act('enable'); }}>Create my TULLIP PIN</button>
                     <button className="text-button" disabled={busy} onClick={() => setSetup(false)}>Cancel</button>
                   </div>
                 </div>}
-          {!status.available && <p className="privacy-lock-note">Set a screen-lock PIN, pattern, or password in Android Settings, then reopen TULLIP to set up app lock.</p>}
+          {status.migrationRequired && <p className="privacy-lock-note">Your existing Android lock still protects this journal. Verify it once to switch safely to your own TULLIP PIN. Cancelling keeps your existing protection.</p>}
         </>}
-    <p className="privacy-lock-note">This protects against casual access. It does not encrypt the database or replace Android device security. Screenshots and screen sharing are blocked while app lock is enabled, where Android supports it.</p>
+    <p className="privacy-lock-note">Your PIN is stored as a salted verifier, never as readable digits. Repeated wrong attempts trigger a waiting period. This protects against casual access; it does not encrypt the database or replace Android device security. Screenshots and screen sharing are blocked while app lock is enabled, where Android supports it.</p>
     {error && <p className="form-error" role="alert">{error}</p>}
   </section>;
 }
+
