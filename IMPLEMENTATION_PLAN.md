@@ -150,3 +150,24 @@ The owner also supplied a transparent tulip PNG on 27 October. Its original
 greeting, loading view and empty journal. Display frames omit only transparent
 outer margins; the flower is not repainted or cropped. The arcade image
 continues to serve as the Android launcher/splash logo and welcome illustration.
+
+### Private website delivery — 31 October 2026
+
+The owner requested completion of the website and explicitly selected
+"Only me for now (private)." This is a separate static presentation in
+`website/`, with an original Lumi tulip character, the supplied original
+arcade/tulip assets, labelled sample journal/jar interactions, feature tabs,
+FAQs and honest APK availability. It never reads or changes the real journal.
+
+| Website work | Status | Evidence |
+| --- | --- | --- |
+| Reference interpretation and original TULLIP design | PASS | Reference inspected; original copy/artwork and working responsive page rendered |
+| Integer-paise sample accounting | PASS | Five Node tests plus actual browser allocation/release/expense/completion/reset checks |
+| Controls and layout | PASS | Keyboard tabs, FAQ, mobile menu and 1280/390/320px browser checks |
+| Regression and production build | PASS | 68 app tests, production frontend build; separate static site needs no build step |
+| Owner-private publication | PASS | Sites deployment succeeded for source `c18bc586aa4ba0a76bd9e65ec3119c33cda3b909` |
+| New APK distribution | NOT VERIFIED | No GitHub APK release exists; website says so explicitly |
+
+The website is published privately at
+https://tullip-wish-journal.satinygenet65.chatgpt.site.
+These results do not establish Android custom-PIN runtime or phone testing.
