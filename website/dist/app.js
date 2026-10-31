@@ -1,4 +1,5 @@
 import { TARGET, STEP, initialDemo, available, transition, formatMoney } from './demo.mjs';
+import { initScrollStory } from './story.js';
 
 const $ = selector => document.querySelector(selector);
 let state = initialDemo();
@@ -63,19 +64,5 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.getAtt
 document.addEventListener('click',event=>{if(!event.target.closest('.nav-wrap'))closeMenu();});
 const narrow=matchMedia('(max-width: 760px)');narrow.addEventListener('change',closeMenu);
 
-const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
-if ('IntersectionObserver' in window && !reducedMotion.matches) {
-  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}}),{threshold:.08});
-  document.querySelectorAll('.reveal').forEach(element=>{element.classList.add('will-reveal');observer.observe(element);});
-}
-let scrollQueued=false;
-function updateProgress() {
-  const range=document.documentElement.scrollHeight-innerHeight;
-  const ratio=range>0?Math.min(1,Math.max(0,scrollY/range)):0;
-  $('#reading-progress').style.transform=`scaleX(${ratio})`;
-  $('#journey-label').textContent=ratio<.2?'A little room to grow':ratio<.5?'Every little bit counts':ratio<.8?'Your wishes. Your pace.':'Lovely things start small';
-  scrollQueued=false;
-}
-addEventListener('scroll',()=>{if(!scrollQueued){scrollQueued=true;requestAnimationFrame(updateProgress);}},{passive:true});
-addEventListener('resize',updateProgress);
-updateProgress();renderDemo();
+renderDemo();
+initScrollStory();
