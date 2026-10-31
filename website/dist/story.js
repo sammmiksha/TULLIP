@@ -148,7 +148,7 @@ export function initScrollStory() {
       }
     }
     const finale=$('#get-tullip').getBoundingClientRect();if(finale.top<vh*.6&&finale.bottom>vh*.2)night=true;
-    document.body.classList.toggle('is-night',night);document.body.classList.toggle('story-active',!!current);
+    document.body.classList.toggle('is-night',night);document.body.classList.toggle('story-active',!!current&&current!=='gallery');
     document.querySelectorAll('[data-chapter]').forEach(link=>{const active=link.dataset.chapter===current;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','step');else link.removeAttribute('aria-current');});
     $('#journey-count').textContent=String(discovered.size);$('#finale-count').textContent=String(discovered.size);
     const range=document.documentElement.scrollHeight-vh;$('#reading-progress').style.transform=`scaleX(${range>0?clamp(scrollY/range):0})`;

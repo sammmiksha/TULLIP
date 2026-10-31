@@ -1,5 +1,6 @@
 import { TARGET, STEP, initialDemo, available, transition, formatMoney } from './demo.mjs';
 import { initScrollStory } from './story.js';
+import { renderRelease } from './release.mjs';
 
 const $ = selector => document.querySelector(selector);
 let state = initialDemo();
@@ -65,4 +66,5 @@ document.addEventListener('click',event=>{if(!event.target.closest('.nav-wrap'))
 const narrow=matchMedia('(max-width: 760px)');narrow.addEventListener('change',closeMenu);
 
 renderDemo();
+renderRelease();
 initScrollStory();
