@@ -42,3 +42,9 @@ tullip-savings-*.csv
 .idea/
 .DS_Store
 Thumbs.db
+
+# Static TULLIP website source (its dist directory is intentional)
+!website/dist/
+!website/dist/**
+website/.sites-checkout/
+website/.sites-runtime/

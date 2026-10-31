@@ -6,7 +6,7 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-/** Uses Android's trusted credential screen; stores no PIN, password, or biometric data. */
+/** Native TULLIP PIN dialogs; raw PINs never pass through the JavaScript bridge. */
 @CapacitorPlugin(name = "AppLock")
 public class AppLockPlugin extends Plugin {
     @Override
@@ -47,6 +47,11 @@ public class AppLockPlugin extends Plugin {
         });
     }
 
+    @PluginMethod
+    public void change(PluginCall call) {
+        authenticateAction("change", call);
+    }
+
     private void authenticateAction(String action, PluginCall call) {
         getActivity().runOnUiThread(() -> {
             MainActivity activity = (MainActivity) getActivity();
@@ -62,3 +67,4 @@ public class AppLockPlugin extends Plugin {
         });
     }
 }
+
