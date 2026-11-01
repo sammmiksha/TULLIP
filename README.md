@@ -1,143 +1,232 @@
-# TULLIP
+# 🌷 TULLIP — Your Little Money Journal
 
-TULLIP is a calm, local-first personal finance journal. It works without an
-account, bank connection, analytics, cloud sync, ads, or remote user-data
-service. The same React application runs in a browser during development and
-is packaged for Android with Capacitor.
+<p align="center">
+  <strong>Money today. Wishes tomorrow.</strong>
+  <br/>
+  A little money journal. A lot to look forward to.
+</p>
 
-The owner-supplied arcade image is the Android launcher/splash logo and welcome
-illustration. The supplied transparent tulip appears in the header, greeting,
-loading view and empty journal. Both original PNGs are preserved in `src/assets`;
-savings jars keep their separate animated progress illustration.
+<p align="center">
+  <a href="https://tullip.patilsamiksha179.workers.dev/">🌐 Live Website</a>
+  &nbsp; ✦ &nbsp;
+  <a href="https://pub-1c60871b08584d4d8b63ed48dafb2bc8.r2.dev/TULLIP.apk">📱 Download Android APK</a>
+</p>
 
-## What it does
+---
 
-- Record income, expenses, and transfers; browse, search, filter, edit, and
-  remove journal entries.
-- Use a date-aware calendar, monthly dashboard, category/payment-method
-  breakdowns, budgets, and reports.
-- Record bank, cash and credit-card accounts separately from payment methods.
-  Allocate money to wish jars, release it, correct history, and fund linked
-  purchases without double-counting expenses. Animated fill reflects actual
-  reserved money. Old planning contributions remain separate historical entries.
-- Attach an image receipt to a transaction. Browser development stores a local
-  data URL in IndexedDB; Android writes the image to app-private storage.
-- Export a month as CSV or PDF, export savings history, and export/merge a JSON
-  backup. Android opens its native share/save chooser; there is no automatic upload.
-- Choose a local nickname and preferences, use a skippable walkthrough, and
-  optionally protect the Android app with its actual device screen-lock credential.
+## ✨ About TULLIP
 
-All monetary fields in the domain are integer paise (`amountMinor`,
-`targetMinor`, `openingBalanceMinor`). User-entered amounts are parsed into
-paise before they are stored; totals, budgets, exports, reports, and balances
-all use those integers.
+TULLIP is a calm, personal finance journal designed to make managing money feel simple, personal and less overwhelming.
 
-## Local storage and privacy
+Track your everyday spending, manage your savings, create little financial goals and understand where your money goes — all in one place.
 
-The browser adapter stores the journal in IndexedDB. On Android, the repository
-selects SQLite through `@capacitor-community/sqlite`; attachment bytes live in
-Capacitor's app-private `Directory.Data`. No adapter sends data over the
-network.
+TULLIP is built around a **local-first philosophy**. Your financial information stays on your device. No account creation, bank connection, cloud sync, advertisements or remote user-data service.
 
-Backups are intentionally a user action. Restores merge new record IDs only,
-preserve existing preferences, validate the v1/v2 envelope and financial ledger,
-and write atomically. An empty target restores the backup's currency and starting
-funds. Android receipt bytes need a separate private copy; JSON includes metadata.
+A little progress is still progress. 🌱
 
-Migration 2 adds accounts without rewriting old transaction/contribution
-payloads. Historical funds remain unassigned until explicitly reconciled into
-a bank or cash account. See [DATA_MODEL.md](DATA_MODEL.md) for accounting,
-refunds, safe corrections and upgrade behavior. The SQLite database is not
-encrypted; optional app lock protects casual access and stores no credential.
+## 🌸 Features
 
-The repository ignores receipts, SQLite files, backups, keystores, APKs/AABs,
-environment files, and local Android build/configuration output. Keep exported
-backups in a private location outside the repository.
+| Feature | What it does |
+|---|---|
+| 💰 Money Journal | Record, edit, search, filter and manage income, expenses and transfers |
+| 📅 Calendar | Explore your transactions through a date-aware calendar |
+| 📊 Dashboard | View monthly summaries, spending breakdowns and financial activity |
+| 🏦 Accounts | Manage bank, cash and credit-card balances separately |
+| 🫙 Wish Jars | Set savings goals, allocate money and track actual savings progress |
+| 🎯 Budgets | Organise spending with category-based budgets |
+| 🧾 Receipts | Attach receipt images to transactions |
+| 📈 Reports | Understand monthly income, expenses and savings |
+| 📤 Exports | Generate CSV and PDF reports and export JSON backups |
+| 🌷 Personalisation | Set a nickname, preferences and a personalised journal experience |
+| 🔐 App Lock | Optionally protect Android access using your device's screen-lock credential |
 
-## Development
+## 🛠️ Technology Stack
 
-```powershell
+TULLIP uses a shared React application for browser development and Android packaging.
+
+| Technology | Purpose |
+|---|---|
+| React 19 | User interface |
+| TypeScript | Type-safe application development |
+| Vite 7 | Development server and production build |
+| Capacitor 8 | Native Android integration |
+| SQLite | Native Android financial data storage |
+| IndexedDB | Browser-local data storage |
+| Dexie.js | IndexedDB database management |
+| Capacitor Community SQLite | SQLite integration for Android |
+| Capacitor Filesystem | Private receipt-image storage |
+| Capacitor Camera | Image and receipt functionality |
+| Capacitor Share | Native Android sharing and saving |
+| Vitest | Automated testing |
+| Gradle 8.14.3 | Android build system |
+| Java 21 | Android build toolchain |
+
+### 🏗️ Architecture
+
+```text
+                 TULLIP
+                    │
+             React + TypeScript
+                    │
+             Shared Application
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       Browser             Android
+          │                   │
+      IndexedDB              SQLite
+          │                   │
+      Local data         App-private files
+```
+
+The browser and Android versions share the same application logic while using platform-specific local storage adapters.
+
+## 🔒 Privacy First
+
+Your financial data belongs to you.
+
+- No account registration.
+- No bank-account connection.
+- No analytics or advertising trackers.
+- No cloud synchronisation.
+- No remote user-data service.
+- No automatic backup uploads.
+- No automatic device-to-device transfers.
+
+Browser data is stored locally using IndexedDB.
+
+Android uses SQLite for journal records and app-private storage for receipt images.
+
+Backups are created and restored manually. The SQLite database is not encrypted; optional app locking provides casual-access protection rather than database encryption.
+
+## 💾 Data Management
+
+TULLIP supports:
+
+- Monthly CSV and PDF exports.
+- Savings-history exports.
+- JSON backup creation.
+- Backup restoration and merging.
+- Duplicate-record prevention.
+- Financial-ledger validation.
+- Atomic restore operations.
+
+All financial amounts are stored as integer paise to avoid floating-point rounding errors.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js and npm
+- Git
+- JDK 21 for Android builds
+- Android Studio and Android SDK for Android development
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/sammmiksha/TULLIP.git
+cd TULLIP
+```
+
+### 2. Install dependencies
+
+```bash
 npm ci
+```
+
+### 3. Start development
+
+```bash
 npm run dev
 ```
 
-Run the checks with:
+### 4. Run tests
 
-```powershell
+```bash
 npm test
+```
+
+### 5. Create a production build
+
+```bash
 npm run build
 ```
 
-The suite covers minor-unit arithmetic, date-scoped reporting, transfers,
-budget and savings progress, calendar edge cases, CSV escaping/non-mutation,
-and backup validation/deduplication.
+## 📱 Android Development
 
-## Android
+TULLIP uses Capacitor to package the shared React application for Android.
 
-The Capacitor project uses app ID `com.tullip.journal`, Android API 36, and
-Gradle 8.14.3. Use JDK 21: the installed Capacitor plugins require a Java 21
-toolchain, and the wrapper does not support running on Java 25. Set
-`JAVA_HOME` to your JDK 21 directory and `ANDROID_HOME` to your Android SDK
-directory in the PowerShell session. Add the SDK's `platform-tools` directory
-to `PATH` for `adb`.
+Android configuration:
 
-With an emulator or device available, package and launch it with:
+- Application ID: `com.tullip.journal`
+- Android API: 36
+- Capacitor: 8
+- Gradle: 8.14.3
+- Java: 21
+
+Set `JAVA_HOME` to your JDK 21 installation and `ANDROID_HOME` to your Android SDK directory.
+
+Build the debug APK:
 
 ```powershell
 npm run android:debug
-Test-Path android\app\build\outputs\apk\debug\app-debug.apk
-adb install -r android\app\build\outputs\apk\debug\app-debug.apk
-adb shell am start -W -n com.tullip.journal/.MainActivity
 ```
 
-An APK is not considered built or tested until the Gradle build succeeds and
-the final command launches it on an emulator or physical device. The wrapper
-uses the smaller binary distribution with a pinned SHA-256 checksum. If
-Gradle's download client cannot reach the distribution server, a separately
-downloaded archive must match that checksum before it is placed in the
-wrapper cache.
+Expected APK location:
 
-On a machine with limited memory, build before starting the emulator and use
-one worker:
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Install on a connected device:
 
 ```powershell
-npm run android:debug -- --max-workers=1 "-Dorg.gradle.jvmargs=-Xmx768m -XX:ActiveProcessorCount=2 -XX:ReservedCodeCacheSize=128m"
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Android smoke tests check the app package, disabled system backup, dashboard
-loading, and creation of the native SQLite database:
+## 🧪 Testing & Verification
 
-```powershell
-cd android
-.\gradlew.bat :app:assembleDebugAndroidTest --max-workers=1
-# Start the emulator after Gradle exits on machines with limited memory.
-adb install -r app\build\outputs\apk\debug\app-debug.apk
-adb install -r -t app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
-adb shell am instrument -w -r com.tullip.journal.test/androidx.test.runner.AndroidJUnitRunner
-```
+The automated test suite covers:
 
-System cloud backup and automatic device transfer are explicitly disabled for
-the journal, receipts, and preferences. Moving data is a manual export/restore
-operation.
+- Minor-unit financial calculations.
+- Date-scoped reporting.
+- Transfers and balances.
+- Budget and savings progress.
+- Calendar edge cases.
+- CSV escaping and non-mutation.
+- Backup validation and deduplication.
 
-## Verification status
+Android smoke tests cover application packaging, disabled system backup, dashboard loading and native SQLite database creation.
 
-The master-brief update is version **0.2.0**, Android versionCode **2**, on
-`build/tullip-v1`. Intermediate domain/storage/UI tests and the production
-build pass. Fresh final Android build, upgrade, app-lock and device results
-are tracked in [ANDROID_BUILD.md](ANDROID_BUILD.md) and [TESTING.md](TESTING.md).
-The following paragraph records the previous build, not the new update:
+Physical-device testing and a complete Android regression matrix are not yet verified. Refer to `ANDROID_BUILD.md` and `TESTING.md` for detailed verification records.
 
-Web tests (11), the production build, Capacitor sync, Android SDK packaging,
-APK installation, and two offline Android 16 emulator smoke tests passed.
-The verified debug artifact is
-`android/app/build/outputs/apk/debug/app-debug.apk`; generated APKs are not
-committed to Git.
+## 📂 Project Documentation
 
-The low-memory test environment required separate build/emulator runs and
-temporarily disabling busy Google background packages inside a read-only
-AVD. Its saved state was preserved. Physical-device testing and a full Android
-regression matrix have not been performed. Android System UI/launcher ANR
-dialogs continued in that constrained emulator, so uninterrupted manual UI
-stability remains NOT VERIFIED despite the passing launch/database tests.
-See `IMPLEMENTATION_PLAN.md` for the verification details and phase checklist.
+| File | Description |
+|---|---|
+| `README.md` | Project overview and setup |
+| `DATA_MODEL.md` | Financial data model and accounting behaviour |
+| `ANDROID_BUILD.md` | Android build and verification instructions |
+| `TESTING.md` | Testing procedures and results |
+| `IMPLEMENTATION_PLAN.md` | Development phases and implementation details |
+
+## 🌷 Project Philosophy
+
+TULLIP is not about tracking every penny perfectly or making money management stressful.
+
+It is about building awareness, developing better habits and making space for the things you wish to achieve.
+
+Small steps. Soft encouragement. Your money, your pace.
+
+**Made with 🌷 and a little bit of code.**
+
+---
+
+<p align="center">
+  <strong>TULLIP — Money today. Wishes tomorrow.</strong>
+  <br/>
+  <a href="https://tullip.patilsamiksha179.workers.dev/">Visit TULLIP</a>
+  &nbsp; ✦ &nbsp;
+  <a href="https://pub-1c60871b08584d4d8b63ed48dafb2bc8.r2.dev/TULLIP.apk">Get the Android APK</a>
+</p>
