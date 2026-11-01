@@ -72,15 +72,10 @@ export function initScrollStory() {
     tab.addEventListener('click',()=>{manualGallery=i;drawGallery(i);});
     tab.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)){manualGallery=tabs.findIndex(t=>t.getAttribute('aria-selected')==='true');drawGallery(manualGallery);}});
   });
-  const motionButton=$('#motion-toggle');
   function applyMotion(){
     document.documentElement.classList.toggle('motion-off',motionOff);
-    motionButton.setAttribute('aria-pressed',String(motionOff));
-    motionButton.setAttribute('aria-label',motionOff?'Enable motion':'Reduce motion');
-    motionButton.title=motionOff?'Motion reduced':'Reduce motion';
     requestDraw();
   }
-  motionButton.addEventListener('click',()=>{motionOff=!motionOff;applyMotion();});
   reduced.addEventListener('change',event=>{motionOff=event.matches;applyMotion();if(motionOff)pauseTour();});
   const soundButton=$('#sound-toggle');
   async function chime(){
@@ -136,7 +131,7 @@ export function initScrollStory() {
         const fan=motionOff?1:segment(p,.08,.68),mobile=innerWidth<=760,gap=mobile?Math.min(92,innerWidth*.21):280;
         wishCards.forEach((card,i)=>{const offset=i-1;card.style.transform=`translate3d(${offset*gap*fan}px,${Math.abs(offset)*25*fan}px,${-Math.abs(offset)*35}px) rotate(${offset*17*fan}deg) scale(${mobile?.87-Math.abs(offset)*fan*.12:1-Math.abs(offset)*fan*.055})`;card.style.zIndex=String(card===document.activeElement?10:4-Math.abs(offset));});
       }else if(scene.dataset.scene==='night'){
-        const introOut=motionOff?0:segment(p,.37,.57),lumiIn=motionOff?1:segment(p,.46,.68);
+        const introOut=0,lumiIn=1;
         const prologue=$('.night-prologue');prologue.style.opacity=String(1-introOut);prologue.style.transform=`translateY(${-introOut*100}px) scale(${1-introOut*.08})`;
         [...document.querySelectorAll('.night-stars>span')].forEach((star,i)=>star.classList.toggle('lit',motionOff||segment(p,0,.38)*7>=i+.5));
         const layout=$('.scene-night .lumi-layout');layout.style.opacity=String(lumiIn);layout.style.transform=`translateY(${(1-lumiIn)*70}px) scale(${.94+lumiIn*.06})`;
