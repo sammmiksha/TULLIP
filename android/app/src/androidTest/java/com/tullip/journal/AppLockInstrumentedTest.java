@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 /**
  * Opt-in real TULLIP keypad test, only on a caller-owned disposable/read-only emulator.
  * Does not configure or remove the phone's screen credential and never touches journal data.
- * Run exercise, adb force-stop the app, then restart with the SAME ephemeral six-digit
+ * Run exercise, adb force-stop the app, then restart with the SAME ephemeral four-digit
  * appLockTestPin; allowTemporaryAppPin=true explicitly authorizes this disposable lock.
  */
 @RunWith(AndroidJUnit4.class)
@@ -45,7 +45,7 @@ public class AppLockInstrumentedTest {
         assumeTrue("Disposable emulator only", Build.HARDWARE.contains("ranchu") || Build.HARDWARE.contains("goldfish"));
         assumeTrue("Choose exercise or restart stage", "exercise".equals(stage) || "restart".equals(stage));
         String pin = arguments.getString("appLockTestPin", "");
-        assertTrue("Use an ephemeral six-digit test PIN", pin.matches("[0-9]{6}"));
+        assertTrue("Use an ephemeral four-digit test PIN", pin.matches("[0-9]{4}"));
         String wrong = (pin.charAt(0) == '9' ? "8" : "9") + pin.substring(1);
         AppPinStore store = new AppPinStore(context);
 
@@ -137,7 +137,7 @@ public class AppLockInstrumentedTest {
                 assertEquals(0, store.remainingMillis());
 
                 Pending change = request(activity, "change");
-                enterPin(pin); click("Continue"); waitForText("Create a six-digit");
+                enterPin(pin); click("Continue"); waitForText("Create a four-digit");
                 enterPin(wrong); click("Continue"); waitForText("Confirm your new");
                 enterPin(wrong); click("Save TULLIP PIN"); assertTrue(change.await());
                 instrumentation.runOnMainSync(activity::lockJournal);

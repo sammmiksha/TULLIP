@@ -25,12 +25,15 @@ public class PinCryptoTest {
         assertFalse(PinCrypto.matches(first, PinCrypto.derive("654321".toCharArray(), firstSalt, 100)));
         assertTrue(PinCrypto.matches(first, first.clone()));
     }
-    @Test public void acceptsExactlySixAsciiDigitsAndRejectsMalformedVerifier() {
-        assertTrue(PinCrypto.validPin("012345".toCharArray()));
-        assertFalse(PinCrypto.validPin("12345".toCharArray()));
-        assertFalse(PinCrypto.validPin("1234567".toCharArray()));
+    @Test public void acceptsExactlyFourAsciiDigitsAndKeepsLegacyVerificationCompatible() {
+        assertTrue(PinCrypto.validPin("0123".toCharArray()));
+        assertFalse(PinCrypto.validPin("012345".toCharArray()));
+        assertFalse(PinCrypto.validPin("123".toCharArray()));
         assertFalse(PinCrypto.validPin("１２３４５６".toCharArray()));
         assertFalse(PinCrypto.validPin("12 456".toCharArray()));
+        assertTrue(PinCrypto.validPin("012345".toCharArray(), PinCrypto.LEGACY_DIGITS));
+        assertEquals(PinCrypto.APP_PIN_DIGITS, PinCrypto.digitsForVersion(PinCrypto.CURRENT_VERSION));
+        assertEquals(PinCrypto.LEGACY_DIGITS, PinCrypto.digitsForVersion(PinCrypto.LEGACY_VERSION));
         assertThrows(IllegalArgumentException.class, () -> PinCrypto.unhex("garbage", 32));
         assertArrayEquals(new byte[] {0, 15, -1}, PinCrypto.unhex("000fff", 3));
     }

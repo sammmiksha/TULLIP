@@ -16,6 +16,7 @@ export function AppLockBoundary({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AppLockStatus | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const pinLabel = status?.pinDigits === 6 ? 'six-digit' : 'four-digit';
 
   useEffect(() => {
     let disposed = false;
@@ -54,7 +55,7 @@ export function AppLockBoundary({ children }: { children: ReactNode }) {
       ? <main className="app-lock-screen" aria-busy={busy}>
           <div className="app-lock-emblem" aria-hidden="true">✦</div>
           <h1>{status?.locked ? 'Your private journal' : 'Opening TULLIP'}</h1>
-          <p>{status?.locked ? 'Unlock with your own six-digit TULLIP PIN to see your money and wishes.' : 'Checking your privacy preferences…'}</p>
+          <p>{status?.locked ? status.migrationRequired ? 'Verify your existing Android lock once to create your own four-digit TULLIP PIN.' : `Unlock with your own ${pinLabel} TULLIP PIN to see your money and wishes.` : 'Checking your privacy preferences…'}</p>
           {status?.locked && <button className="primary-button" disabled={busy} onClick={() => void act('authenticate')}>Unlock journal</button>}
           {error && <p className="form-error" role="alert">{error}</p>}
         </main>
@@ -69,7 +70,7 @@ export function PrivacyLockSettings() {
   const { status, busy, error, act } = lock;
   return <section className="card settings-form privacy-lock-settings" aria-labelledby="privacy-lock-heading">
     <h2 id="privacy-lock-heading">Privacy &amp; App Lock</h2>
-    <p className="muted">Your journal, your secret. Create a six-digit TULLIP PIN that is separate from your phone screen lock. PIN entry and verification stay on your device.</p>
+    <p className="muted">Your journal, your secret. Create a four-digit TULLIP PIN that is separate from your phone screen lock. PIN entry and verification stay on your device.</p>
     {!status?.supported
       ? <p className="privacy-lock-note">App lock is available in the installed Android app. This browser preview has no app-lock protection.</p>
       : <>

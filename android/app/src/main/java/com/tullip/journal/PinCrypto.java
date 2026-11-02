@@ -14,14 +14,32 @@ import javax.crypto.spec.SecretKeySpec;
 
 /** PIN verifiers only; no PIN is persisted or sent through the JavaScript bridge. */
 final class PinCrypto {
+    static final int LEGACY_VERSION = 1;
+    static final int CURRENT_VERSION = 2;
+    static final int LEGACY_DIGITS = 6;
+    static final int APP_PIN_DIGITS = 4;
     static final int ITERATIONS = 600_000;
     static final int SALT_BYTES = 32;
     private PinCrypto() {}
 
     static boolean validPin(char[] pin) {
-        if (pin == null || pin.length != 6) return false;
+        return validPin(pin, APP_PIN_DIGITS);
+    }
+
+    static boolean validPin(char[] pin, int digits) {
+        if (pin == null || pin.length != digits) return false;
         for (char digit : pin) if (digit < '0' || digit > '9') return false;
         return true;
+    }
+
+    static boolean supportedVersion(int version) {
+        return version == LEGACY_VERSION || version == CURRENT_VERSION;
+    }
+
+    static int digitsForVersion(int version) {
+        if (version == LEGACY_VERSION) return LEGACY_DIGITS;
+        if (version == CURRENT_VERSION) return APP_PIN_DIGITS;
+        throw new IllegalArgumentException("Unsupported PIN version");
     }
 
     static byte[] randomSalt() {

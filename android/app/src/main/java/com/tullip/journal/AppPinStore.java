@@ -24,6 +24,11 @@ final class AppPinStore {
     }
     boolean enabled() { return preferences.getBoolean(ENABLED, false) || legacy(); }
     boolean legacy() { return preferences.getBoolean(LEGACY_ENABLED, false); }
+    int pinDigits() {
+        if (legacy()) return PinCrypto.APP_PIN_DIGITS;
+        int version = preferences.getInt("pin_version", PinCrypto.CURRENT_VERSION);
+        return PinCrypto.supportedVersion(version) ? PinCrypto.digitsForVersion(version) : PinCrypto.APP_PIN_DIGITS;
+    }
     int boot() { return Settings.Global.getInt(context.getContentResolver(), Settings.Global.BOOT_COUNT, -1); }
 
     synchronized long remainingMillis() {
@@ -35,7 +40,7 @@ final class AppPinStore {
     synchronized void configure(byte[] salt, byte[] verifier) {
         if (salt.length != PinCrypto.SALT_BYTES || verifier.length != 32) throw new IllegalArgumentException("Invalid verifier");
         SharedPreferences.Editor editor = clearAttempts(preferences.edit()).putBoolean(ENABLED, true)
-            .putBoolean(LEGACY_ENABLED, false).putInt("pin_version", 1)
+            .putBoolean(LEGACY_ENABLED, false).putInt("pin_version", PinCrypto.CURRENT_VERSION)
             .putInt("pin_iterations", PinCrypto.ITERATIONS)
             .putString("pin_salt", PinCrypto.hex(salt)).putString("pin_verifier", PinCrypto.hex(verifier));
         boolean committed = commitOrRollback(editor);
@@ -47,14 +52,16 @@ final class AppPinStore {
         final String verifierHex;
         final byte[] salt;
         final byte[] expected;
+        final int version;
         synchronized (this) {
             if (!enabled() || legacy()) throw new IllegalStateException("Finish the protected lock upgrade first.");
             if (remainingMillis() > 0) return false;
-            if (!PinCrypto.validPin(pin)) throw new IllegalArgumentException("Enter all six PIN digits.");
-            if (preferences.getInt("pin_version", 0) != 1
+            version = preferences.getInt("pin_version", 0);
+            if (!PinCrypto.supportedVersion(version)
                 || preferences.getInt("pin_iterations", 0) != PinCrypto.ITERATIONS) {
                 throw new IllegalStateException("PIN protection could not be read. Your journal remains locked.");
             }
+            if (!PinCrypto.validPin(pin, PinCrypto.digitsForVersion(version))) throw new IllegalArgumentException("Enter all " + PinCrypto.digitsForVersion(version) + " PIN digits.");
             saltHex = preferences.getString("pin_salt", null);
             verifierHex = preferences.getString("pin_verifier", null);
             salt = PinCrypto.unhex(saltHex, PinCrypto.SALT_BYTES);
@@ -67,7 +74,7 @@ final class AppPinStore {
             actual = PinCrypto.derive(pin, salt, PinCrypto.ITERATIONS);
             boolean accepted = PinCrypto.matches(expected, actual);
             synchronized (this) {
-                if (!enabled() || legacy() || !saltHex.equals(preferences.getString("pin_salt", null))
+                if (!enabled() || legacy() || version != preferences.getInt("pin_version", 0) || !saltHex.equals(preferences.getString("pin_salt", null))
                     || !verifierHex.equals(preferences.getString("pin_verifier", null))) {
                     throw new IllegalStateException("PIN protection changed. Try again.");
                 }

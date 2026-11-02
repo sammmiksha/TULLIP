@@ -7,6 +7,7 @@ export interface AppLockStatus {
   locked: boolean;
   method: 'app_pin' | 'legacy_device_credential' | 'unavailable';
   migrationRequired?: boolean;
+  pinDigits?: 4 | 6;
   retryAfterSeconds?: number;
   authenticated?: boolean;
 }
