@@ -26,6 +26,24 @@ describe('CSV export', () => {
     expect(output).toContain('90071992547409.91'); expect(output).toContain("'=HYPERLINK"); expect(output).not.toContain('REMOVED_RECORD');
   });
 
+  it('exports a bank-style statement with account balances and a running ledger', () => {
+    const transactions: Transaction[] = [
+      { id: 'prior-income', type: 'income', amountMinor: 50000, currency: 'INR', categoryId: 'salary', paymentMethodId: 'upi', date: '2026-09-28', description: 'Prior salary', accountId: 'bank', createdAt: '', updatedAt: '' },
+      { id: 'transfer', type: 'transfer', amountMinor: 30000, currency: 'INR', categoryId: '', paymentMethodId: 'bank-transfer', date: '2026-10-03', description: 'Cash top-up', accountId: 'bank', transferAccountId: 'cash', createdAt: '', updatedAt: '' },
+    ];
+    const accounts = [
+      { id: 'bank', name: 'Main bank', kind: 'bank' as const, currency: 'INR', openingBalanceMinor: 100000, createdAt: '', updatedAt: '' },
+      { id: 'cash', name: 'Cash wallet', kind: 'cash' as const, currency: 'INR', openingBalanceMinor: 0, createdAt: '', updatedAt: '' },
+    ];
+    const output = csvForTransactions(transactions, [], [{ id: 'upi', name: 'UPI', kind: 'upi', createdAt: '', updatedAt: '' }, { id: 'bank-transfer', name: 'Bank transfer', kind: 'bank_transfer', createdAt: '', updatedAt: '' }], accounts, '2026-10');
+
+    expect(output).toContain('TULLIP CONSOLIDATED ACCOUNT STATEMENT');
+    expect(output).toContain('Opening balance'); expect(output).toContain('Running balance');
+    expect(output).toContain('Transfer to Cash wallet'); expect(output).toContain('Transfer from Main bank');
+    expect(output).toContain('"Main bank","1500.00","1200.00","INR"');
+    expect(output).toContain('"Cash wallet","0.00","300.00","INR"');
+  });
+
   it('exports savings history separately from cash flow with sources and reversals', () => {
     const output = csvForSavingsHistory({ accounts: [], transactions: [], categories: [], paymentMethods: [], budgets: [], wishlistItems: [], attachments: [], settings: makeDefaultSettings(), savingsContributions: [
       { id: 'allocation', wishlistItemId: 'jar', kind: 'allocation', accountId: 'bank', amountMinor: 12345, date: '2026-11-01', createdAt: '', updatedAt: '' },

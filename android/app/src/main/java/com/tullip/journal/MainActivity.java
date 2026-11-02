@@ -110,6 +110,7 @@ public class MainActivity extends BridgeActivity {
         status.put("enabled", pinStore.enabled());
         status.put("locked", pinStore.enabled() && !authenticated);
         status.put("method", pinStore.legacy() ? "legacy_device_credential" : "app_pin");
+        status.put("pinDigits", pinStore.pinDigits());
         status.put("migrationRequired", pinStore.legacy());
         status.put("retryAfterSeconds", (long) Math.ceil(pinStore.remainingMillis() / 1000.0));
         return status;
@@ -190,9 +191,8 @@ public class MainActivity extends BridgeActivity {
             card.addView(pinHint);
             pinInput = new EditText(this);
             pinInput.setId(R.id.tullip_pin_input);
-            pinInput.setContentDescription("Six-digit TULLIP PIN");
+            pinInput.setContentDescription("TULLIP PIN");
             pinInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-            pinInput.setFilters(new InputFilter[] { new InputFilter.LengthFilter(6) });
             pinInput.setShowSoftInputOnFocus(false);
             pinInput.setSaveEnabled(false);
             pinInput.setPrivateImeOptions("nm");
@@ -255,15 +255,18 @@ public class MainActivity extends BridgeActivity {
             submitButton.setOnClickListener(view -> submitPin());
             pinDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(PLUM);
         }
+        int digits = ("new".equals(step) || "confirm".equals(step)) ? PinCrypto.APP_PIN_DIGITS : pinStore.pinDigits();
+        pinInput.setContentDescription(digits + "-digit TULLIP PIN");
+        pinInput.setFilters(new InputFilter[] { new InputFilter.LengthFilter(digits) });
         pinInput.setText("");
         pinInput.setEnabled(true);
         hashing = false;
         submitButton.setEnabled(true);
         if ("new".equals(step)) {
-            pinHint.setText(pinStore.legacy() ? "Make it yours. Create a new six-digit TULLIP PIN to finish the protected upgrade." : "A little privacy, just for you. Create a six-digit TULLIP PIN.");
+            pinHint.setText(pinStore.legacy() ? "Make it yours. Create a new four-digit TULLIP PIN to finish the protected upgrade." : "A little privacy, just for you. Create a four-digit TULLIP PIN.");
             submitButton.setText("Continue");
         } else if ("confirm".equals(step)) {
-            pinHint.setText("One more time. Confirm your new six-digit TULLIP PIN.");
+            pinHint.setText("One more time. Confirm your new four-digit TULLIP PIN.");
             submitButton.setText("Save TULLIP PIN");
         } else {
             pinHint.setText("disable".equals(pendingAction) ? "Enter your TULLIP PIN to turn app lock off." : "change".equals(pendingAction) ? "Enter your current TULLIP PIN first." : "Welcome back. Enter your TULLIP PIN.");
@@ -283,9 +286,10 @@ public class MainActivity extends BridgeActivity {
         char[] entered = new char[pinInput.length()];
         pinInput.getText().getChars(0, entered.length, entered, 0);
         pinInput.setText("");
-        if (!PinCrypto.validPin(entered)) {
+        int digits = ("new".equals(step) || "confirm".equals(step)) ? PinCrypto.APP_PIN_DIGITS : pinStore.pinDigits();
+        if (!PinCrypto.validPin(entered, digits)) {
             Arrays.fill(entered, '\0');
-            pinHint.setText("Please enter all six digits.");
+            pinHint.setText("Please enter all " + digits + " digits.");
             return;
         }
         if ("new".equals(step)) {
@@ -297,7 +301,7 @@ public class MainActivity extends BridgeActivity {
         if ("confirm".equals(step)) {
             if (proposedPin == null || !Arrays.equals(proposedPin, entered)) {
                 Arrays.fill(entered, '\0');
-                pinHint.setText("Those PINs do not match. Enter the same six digits again, or cancel to start over.");
+                pinHint.setText("Those PINs do not match. Enter the same four digits again, or cancel to start over.");
                 return;
             }
             clearProposedPin();
@@ -439,7 +443,7 @@ public class MainActivity extends BridgeActivity {
 
     private void showShield() {
         if (shield == null) return;
-        shieldMessage.setText(pinStore.legacy() ? "Your existing lock is still protecting this journal. Verify it once to create your own TULLIP PIN." : "Your money, wishes, and records are tucked away behind your own six-digit TULLIP PIN.");
+        shieldMessage.setText(pinStore.legacy() ? "Your existing lock is still protecting this journal. Verify it once to create your own four-digit TULLIP PIN." : "Your money, wishes, and records are tucked away behind your own " + pinStore.pinDigits() + "-digit TULLIP PIN.");
         unlockButton.setText(pinStore.legacy() ? "Upgrade protected app lock" : "Unlock with TULLIP PIN");
         unlockButton.setEnabled(!promptActive);
         shield.setVisibility(View.VISIBLE);

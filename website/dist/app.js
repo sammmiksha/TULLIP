@@ -1,6 +1,7 @@
 import { TARGET, STEP, initialDemo, available, transition, formatMoney } from './demo.mjs';
 import { initScrollStory } from './story.js';
 import { renderRelease } from './release.mjs';
+import { initMusicToggle } from './music.js';
 
 const $ = selector => document.querySelector(selector);
 let state = initialDemo();
@@ -67,4 +68,5 @@ const narrow=matchMedia('(max-width: 760px)');narrow.addEventListener('change',c
 
 renderDemo();
 renderRelease();
+initMusicToggle();
 initScrollStory();

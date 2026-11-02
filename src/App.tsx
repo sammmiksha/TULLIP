@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { addMonths, budgetProgress, calendarDays, categorySpending, dateKey, financialSummary, formatDate, formatMoney, monthlyTotals } from './domain/finance';
+import { accountBalances, addMonths, budgetProgress, calendarDays, categorySpending, dateKey, financialSummary, formatDate, formatMoney, monthlyTotals } from './domain/finance';
 import type { AppSettings, Budget, EntityMap, EntityName, Transaction, TullipSnapshot } from './domain/types';
 import { repository } from './storage/repository';
 import { BrandLogo } from './components/BrandLogo';
@@ -69,14 +69,16 @@ function Nav({ screen, setScreen }: { screen: Screen; setScreen: (screen: Screen
 }
 
 function Dashboard({ data, month, setMonth, onAdd, onScreen, onEdit }: { data: TullipSnapshot; month: string; setMonth: (value: string) => void; onAdd: (date?: string) => void; onScreen: (screen: Screen) => void; onEdit: (transaction: Transaction) => void }) {
+  const [balanceExpanded, setBalanceExpanded] = useState(false);
   const totals = monthlyTotals(data.transactions, month); const categories = categorySpending(data.transactions, data.categories, month); const today = dateKey();
   const summary = financialSummary(data, `${month}-31`); const balance = summary.availableMinor;
+  const accountBreakdown = accountBalances(data, `${month}-31`).filter(({ account, availableMinor }) => account.kind !== 'credit_card' && (!account.archived || availableMinor !== 0));
   const monthlyBudget = data.budgets.find((budget) => budget.month === month && !budget.categoryId);
   const recent = [...data.transactions].sort(cmpNewest).slice(0, 5);
   return <>
     <section className="hero"><div><p className="eyebrow">{formatDate(today, data.settings.dateFormat)}</p><h1>{data.settings.displayName ? `Hi, ${data.settings.displayName}` : 'Your little money journal'} <span>✦</span></h1><p>Small entries make a clear money story.</p></div><TulipArtwork /></section>
     <MonthPicker month={month} setMonth={setMonth} />
-    <section className="balance-card" data-tour="balance"><div><p>Available balance</p><strong>{formatMoney(balance, data.settings.currency)}</strong><small>Unallocated cash after jar savings · through the selected month</small></div><span className="balance-sticker" aria-hidden="true">✦</span></section><section className="allocation-summary"><span>Reserved for wishes <b>{formatMoney(summary.allocatedMinor, data.settings.currency)}</b></span><span>Card liabilities <b>{formatMoney(summary.liabilitiesMinor, data.settings.currency)}</b></span></section><div className="dashboard-actions"><button className="secondary-button" data-tour="add-income" onClick={() => onAdd()}>＋ Record income or expense</button><button className="text-button" onClick={() => onScreen('goals')}>Visit your jars ♡</button></div>
+    <button className={`balance-card${balanceExpanded ? ' expanded' : ''}`} data-tour="balance" onClick={() => setBalanceExpanded(value => !value)} aria-expanded={balanceExpanded} aria-controls="balance-breakdown"><div><p>Available balance</p><strong>{formatMoney(balance, data.settings.currency)}</strong><small>{balanceExpanded ? 'Tap to hide account breakdown' : 'Tap to see cash, wallet and bank balances'}</small></div><span className="balance-sticker" aria-hidden="true">✦</span>{balanceExpanded && <div className="balance-breakdown" id="balance-breakdown" aria-label="Available balance by account"><p>Available to spend by account</p>{accountBreakdown.map(({ account, availableMinor }) => <span key={account.id}><i aria-hidden="true">{account.kind === 'cash' ? '●' : account.kind === 'bank' ? '■' : '◇'}</i><b>{account.name}</b><strong>{formatMoney(availableMinor, account.currency)}</strong></span>)}</div>}</button><section className="allocation-summary"><span>Reserved for wishes <b>{formatMoney(summary.allocatedMinor, data.settings.currency)}</b></span><span>Card liabilities <b>{formatMoney(summary.liabilitiesMinor, data.settings.currency)}</b></span></section><div className="dashboard-actions"><button className="secondary-button" data-tour="add-income" onClick={() => onAdd()}>＋ Record income or expense</button><button className="text-button" onClick={() => onScreen('goals')}>Visit your jars ♡</button></div>
     <section className="metric-grid">
       <Metric label="Income" amount={totals.incomeMinor} currency={data.settings.currency} tone="income" onClick={() => onScreen('transactions')} />
       <Metric label="Expenses" amount={totals.expenseMinor} currency={data.settings.currency} tone="expense" onClick={() => onScreen('transactions')} />
