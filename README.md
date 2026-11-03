@@ -1,31 +1,39 @@
 # TULLIP
 
-TULLIP is a calm, local-first personal finance journal. It works without an
-account, bank connection, analytics, cloud sync, ads, or remote user-data
-service. The same React application runs in a browser during development and
-is packaged for Android with Capacitor.
+**TULLIP** is a calm, local-first personal finance journal for keeping track of
+money, plans, and small wins. It runs in the browser while you develop and as a
+native Android app when installed—without accounts, bank connections, adverts,
+analytics, cloud sync, or a remote user-data service.
 
-The owner-supplied arcade image is the Android launcher/splash logo and welcome
-illustration. The supplied transparent tulip appears in the header, greeting,
-loading view and empty journal. Both original PNGs are preserved in `src/assets`;
-savings jars keep their separate animated progress illustration.
+Version **0.3.0** adds a dedicated TULLIP PIN lock and clear, bank-style monthly
+statements. Your journal remains yours: data is stored on the device and exports
+are created only when you ask for them.
 
-## What it does
+## Highlights
 
-- Record income, expenses, and transfers; browse, search, filter, edit, and
-  remove journal entries.
-- Use a date-aware calendar, monthly dashboard, category/payment-method
-  breakdowns, budgets, and reports.
-- Record bank, cash and credit-card accounts separately from payment methods.
-  Allocate money to wish jars, release it, correct history, and fund linked
-  purchases without double-counting expenses. Animated fill reflects actual
-  reserved money. Old planning contributions remain separate historical entries.
-- Attach an image receipt to a transaction. Browser development stores a local
-  data URL in IndexedDB; Android writes the image to app-private storage.
-- Export a month as CSV or PDF, export savings history, and export/merge a JSON
-  backup. Android opens its native share/save chooser; there is no automatic upload.
-- Choose a local nickname and preferences, use a skippable walkthrough, and
-  optionally protect the Android app with its actual device screen-lock credential.
+- **A complete daily journal** — record income, expenses, transfers, refunds,
+  and receipt images. Browse, search, filter, edit, or remove entries whenever
+  you need to correct something.
+- **A clearer picture of your money** — use the calendar, dashboard, monthly
+  reports, budgets, categories, payment methods, and separate bank, cash, and
+  credit-card accounts.
+- **Savings that match real life** — create wish jars, allocate or release
+  funds, correct history, and link a purchase without counting the expense
+  twice. The animated jar fill reflects money actually reserved.
+- **Private, useful exports** — create a PDF or CSV statement with opening and
+  closing balances, debits, credits, and a running balance; export savings
+  history separately; or create and merge JSON backups. On Android, exports
+  open the native share/save chooser.
+- **A dedicated app lock** — on Android, protect the journal with your own
+  four-digit TULLIP PIN. It locks when the app leaves the foreground, stores
+  only a salted verifier, rate-limits repeated failed attempts, and blocks
+  screenshots/screen sharing where Android supports it.
+- **A friendly personal space** — choose a local nickname and preferences, and
+  take the optional walkthrough at your own pace.
+
+The supplied arcade image is used for the Android launcher, splash screen, and
+welcome view. The transparent tulip is used in the header, greeting, loading
+view, and empty journal; the original assets remain in `src/assets`.
 
 All monetary fields in the domain are integer paise (`amountMinor`,
 `targetMinor`, `openingBalanceMinor`). User-entered amounts are parsed into
@@ -35,8 +43,8 @@ all use those integers.
 ## Local storage and privacy
 
 The browser adapter stores the journal in IndexedDB. On Android, the repository
-selects SQLite through `@capacitor-community/sqlite`; attachment bytes live in
-Capacitor's app-private `Directory.Data`. No adapter sends data over the
+uses SQLite through `@capacitor-community/sqlite`; receipt bytes live in
+Capacitor's app-private `Directory.Data`. No adapter sends journal data over the
 network.
 
 Backups are intentionally a user action. Restores merge new record IDs only,
@@ -47,8 +55,12 @@ funds. Android receipt bytes need a separate private copy; JSON includes metadat
 Migration 2 adds accounts without rewriting old transaction/contribution
 payloads. Historical funds remain unassigned until explicitly reconciled into
 a bank or cash account. See [DATA_MODEL.md](DATA_MODEL.md) for accounting,
-refunds, safe corrections and upgrade behavior. The SQLite database is not
-encrypted; optional app lock protects casual access and stores no credential.
+refunds, safe corrections, and upgrade behavior.
+
+The SQLite database is not encrypted. The optional Android app lock protects
+against casual access but does not replace device security or encrypt the
+database. There is no account-based PIN recovery: keep a private backup, and
+remember that clearing app data or uninstalling removes local records.
 
 The repository ignores receipts, SQLite files, backups, keystores, APKs/AABs,
 environment files, and local Android build/configuration output. Keep exported
@@ -70,32 +82,27 @@ npm run build
 
 The suite covers minor-unit arithmetic, date-scoped reporting, transfers,
 budget and savings progress, calendar edge cases, CSV escaping/non-mutation,
-and backup validation/deduplication.
+backup validation/deduplication, PIN protection, and statement exports.
 
 ## Android
 
-The Capacitor project uses app ID `com.tullip.journal`, Android API 36, and
-Gradle 8.14.3. Use JDK 21: the installed Capacitor plugins require a Java 21
-toolchain, and the wrapper does not support running on Java 25. Set
-`JAVA_HOME` to your JDK 21 directory and `ANDROID_HOME` to your Android SDK
-directory in the PowerShell session. Add the SDK's `platform-tools` directory
-to `PATH` for `adb`.
+The Capacitor project uses app ID `com.tullip.journal`, Android API 36, Gradle
+8.14.3, and JDK 21. Set `JAVA_HOME` to a JDK 21 directory and `ANDROID_HOME`
+to your Android SDK directory. Add the SDK's `platform-tools` directory to
+`PATH` if you want to use `adb`.
 
 With an emulator or device available, package and launch it with:
 
 ```powershell
-npm run android:debug
+npm.cmd run android:debug
 Test-Path android\app\build\outputs\apk\debug\app-debug.apk
 adb install -r android\app\build\outputs\apk\debug\app-debug.apk
 adb shell am start -W -n com.tullip.journal/.MainActivity
 ```
 
-An APK is not considered built or tested until the Gradle build succeeds and
-the final command launches it on an emulator or physical device. The wrapper
-uses the smaller binary distribution with a pinned SHA-256 checksum. If
-Gradle's download client cannot reach the distribution server, a separately
-downloaded archive must match that checksum before it is placed in the
-wrapper cache.
+`npm.cmd` avoids PowerShell execution-policy issues that can affect `npm` on
+Windows. An APK is built when Gradle succeeds; it is fully smoke-tested only
+after the final launch command works on an emulator or physical device.
 
 On a machine with limited memory, build before starting the emulator and use
 one worker:
@@ -122,22 +129,13 @@ operation.
 
 ## Verification status
 
-The master-brief update is version **0.2.0**, Android versionCode **2**, on
-`build/tullip-v1`. Intermediate domain/storage/UI tests and the production
-build pass. Fresh final Android build, upgrade, app-lock and device results
-are tracked in [ANDROID_BUILD.md](ANDROID_BUILD.md) and [TESTING.md](TESTING.md).
-The following paragraph records the previous build, not the new update:
+The current build is version **0.3.0**, Android versionCode **3**. A fresh
+production web build, Capacitor sync, and Android debug packaging completed
+successfully on **November 3, 2026**. The latest debug APK is provided at
+[`versions of tullip/tullip.apk`](<versions of tullip/tullip.apk>) for convenient
+download and installation.
 
-Web tests (11), the production build, Capacitor sync, Android SDK packaging,
-APK installation, and two offline Android 16 emulator smoke tests passed.
-The verified debug artifact is
-`android/app/build/outputs/apk/debug/app-debug.apk`; generated APKs are not
-committed to Git.
-
-The low-memory test environment required separate build/emulator runs and
-temporarily disabling busy Google background packages inside a read-only
-AVD. Its saved state was preserved. Physical-device testing and a full Android
-regression matrix have not been performed. Android System UI/launcher ANR
-dialogs continued in that constrained emulator, so uninterrupted manual UI
-stability remains NOT VERIFIED despite the passing launch/database tests.
-See `IMPLEMENTATION_PLAN.md` for the verification details and phase checklist.
+Fresh physical-device testing and a full Android regression pass have not been
+performed for this build. See [ANDROID_BUILD.md](ANDROID_BUILD.md),
+[TESTING.md](TESTING.md), and [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+for detailed verification notes and the remaining checklist.
